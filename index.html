@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableros CyC · Concretos y Construcción</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="comun/tableros.js"></script>
+<style>
+:root{--azul:#0003aa;--azul-2:#00027a;--rojo:#f22230;--tinta:#14173d;--t2:#565b85;--t3:#8a8fb0;--linea:#e2e4f2;--linea-2:#cdd0ea;--fondo:#f6f7fb;--suave:#eef0ff;--ok:#15803d;--ok-bg:#e8f6ee;--aviso:#8a4b07;--aviso-bg:#fff4e6}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:Outfit,"Segoe UI",system-ui,sans-serif;color:var(--tinta);background:var(--fondo);font-size:14px;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}
+a{color:var(--azul)}
+/* ---------- acceso ---------- */
+.acceso{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(1200px 600px at 20% 10%,#1b1fd0 0%,var(--azul) 45%,var(--azul-2) 100%);z-index:50;padding:20px}
+.acceso[hidden]{display:none}
+.acc-caja{width:min(420px,100%);background:#fff;border-radius:16px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.35);display:grid;gap:14px}
+.marca{display:flex;align-items:center;gap:12px}
+.marca .logo{width:38px;height:38px;border-radius:10px;background:var(--azul);display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px;box-shadow:inset 0 -4px 0 var(--rojo)}
+.marca h1{margin:0;font-size:20px;font-weight:600}
+.marca p{margin:0;font-size:12px;color:var(--t2)}
+.acc-caja label{display:grid;gap:6px;font-size:12.5px;font-weight:600;color:var(--t2)}
+.acc-caja input[type=text],.acc-caja input[type=password]{padding:10px 12px;border:1px solid var(--linea-2);border-radius:9px;font-size:14px;color:var(--tinta)}
+.acc-caja input:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px var(--suave)}
+.acc-caja .chk{display:flex;gap:8px;align-items:center;font-weight:400}
+.btn{border:1px solid var(--linea-2);background:#fff;color:var(--azul);border-radius:9px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;text-decoration:none}
+.btn:hover{background:var(--suave)}
+.btn.pri{background:var(--azul);border-color:var(--azul);color:#fff}
+.btn.pri:hover{background:var(--azul-2)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.sm{padding:5px 10px;font-size:12px}
+.msg{min-height:18px;margin:0;font-size:12.5px;color:#c0121d}
+.msg.info{color:var(--t2)}
+/* ---------- estructura ---------- */
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);height:100vh}
+.app.compacta{grid-template-columns:64px minmax(0,1fr)}
+.lado{background:#fff;border-right:1px solid var(--linea);display:flex;flex-direction:column;padding:12px 10px;gap:2px;overflow:auto}
+.lado .marca{padding:4px 6px 12px}
+.lado .marca .logo{width:32px;height:32px;font-size:13px}
+.lado .marca h1{font-size:15px}
+.buscar-lado{display:flex;align-items:center;gap:8px;border:1px solid var(--linea);border-radius:9px;padding:7px 10px;color:var(--t3);cursor:pointer;margin:0 0 8px;font-size:13px}
+.buscar-lado kbd{margin-left:auto;font-size:10.5px;border:1px solid var(--linea);border-radius:4px;padding:0 5px;color:var(--t3)}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;color:var(--tinta);text-decoration:none;font-size:13.5px;cursor:pointer;border:0;background:none;width:100%;text-align:left}
+.nav:hover{background:var(--fondo)}
+.nav.on{background:var(--azul);color:#fff}
+.nav svg{width:17px;height:17px;flex:none}
+.nav .pt{width:8px;height:8px;border-radius:50%;flex:none;margin:0 4.5px}
+.sep{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);font-weight:700;padding:12px 10px 4px}
+.lado .pie{margin-top:auto;border-top:1px solid var(--linea);padding-top:10px;display:flex;align-items:center;gap:9px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--azul);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.pie .quien{min-width:0;flex:1}
+.pie .quien b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pie .quien span{font-size:11px;color:var(--t3)}
+.pie button{border:0;background:none;color:var(--t3);cursor:pointer;padding:4px}
+.app.compacta .nav span,.app.compacta .sep,.app.compacta .marca div,.app.compacta .buscar-lado span,.app.compacta .buscar-lado kbd,.app.compacta .pie .quien{display:none}
+.principal{overflow:auto;min-width:0}
+.vista{max-width:1180px;margin:0 auto;padding:28px 32px 48px}
+.vista.ancha{max-width:none;padding:0;height:100%;display:flex;flex-direction:column}
+h2.saludo{font-size:30px;margin:4px 0 4px;font-weight:600;letter-spacing:-.01em}
+.sub{color:var(--t2);margin:0 0 22px}
+.buscador{display:flex;align-items:center;gap:10px;border:1px solid var(--linea);border-radius:12px;background:#fff;padding:11px 14px;color:var(--t3);cursor:text;margin-bottom:24px}
+.buscador kbd{margin-left:auto;font-size:11px;border:1px solid var(--linea);border-radius:5px;padding:1px 6px}
+h3.tit{font-size:15px;margin:0 0 12px;font-weight:600}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:28px}
+.tarjeta{background:#fff;border:1px solid var(--linea);border-radius:14px;overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column;text-decoration:none;color:inherit}
+.tarjeta:hover{box-shadow:0 10px 30px rgba(0,3,170,.1);transform:translateY(-2px)}
+.tarjeta .ilus{height:118px;background:linear-gradient(180deg,#fafbff,#f1f2fc);border-bottom:1px solid var(--linea);display:grid;place-items:center}
+.tarjeta .cuerpo{padding:12px 14px 14px;display:grid;gap:5px}
+.tarjeta h4{margin:0;font-size:15px;font-weight:600}
+.tarjeta p{margin:0;font-size:12.5px;color:var(--t2);line-height:1.4}
+.etqs{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.etq{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--fondo);color:var(--t2)}
+.etq.edita{background:var(--ok-bg);color:var(--ok)}
+.etq.consulta{background:var(--suave);color:var(--azul)}
+.etq.aviso{background:var(--aviso-bg);color:var(--aviso)}
+.etq.estado{background:#fff;border:1px solid var(--linea)}
+.ultima{font-size:11.5px;color:var(--t3);margin-top:2px}
+.proximas{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:28px}
+.proxima{border:1px dashed var(--linea-2);border-radius:12px;padding:10px 12px;background:#fff}
+.proxima b{display:block;font-size:13.5px}
+.proxima span{font-size:12px;color:var(--t2)}
+.dos{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:22px}
+.panel{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:16px 18px}
+.act{display:grid;gap:2px}
+.act-item{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid #f0f1f8;font-size:13px}
+.act-item:last-child{border-bottom:0}
+.act-item .ic{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
+.act-item .tx{min-width:0}
+.act-item .tx b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act-item .tx span{font-size:11.5px;color:var(--t3)}
+.act-item time{font-size:11.5px;color:var(--t3);white-space:nowrap}
+.vacio{color:var(--t3);font-size:13px;padding:14px 4px}
+/* ---------- marco de app ---------- */
+.barra-app{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--linea);background:#fff}
+.barra-app h3{margin:0;font-size:14.5px;font-weight:600}
+.barra-app .etq{margin-left:4px}
+.barra-app .esp{flex:1}
+iframe.marco{flex:1;border:0;width:100%;background:#fff}
+/* ---------- tablas ---------- */
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+.t th{text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--linea);background:#fafbff;position:sticky;top:0}
+.t td{padding:7px 10px;border-bottom:1px solid #f0f1f8;vertical-align:middle}
+.t select,.t input[type=text]{border:1px solid var(--linea-2);border-radius:7px;padding:4px 6px;font-size:12.5px;background:#fff}
+.t select.edita{background:var(--ok-bg);border-color:#b7e2c8;color:var(--ok)}
+.t select.consulta{background:var(--suave);border-color:#d9dcf7;color:var(--azul)}
+.tabla-wrap{max-height:62vh;overflow:auto;border:1px solid var(--linea);border-radius:12px;background:#fff}
+.herr{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.herr input[type=search]{border:1px solid var(--linea-2);border-radius:9px;padding:7px 10px;min-width:240px}
+.herr .esp{flex:1}
+.nota{font-size:12px;color:var(--t2);line-height:1.5;margin:10px 0 0}
+/* ---------- archivos ---------- */
+.ranuras{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.ranura{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:14px 16px;display:grid;gap:8px}
+.ranura.lista{border-color:#b7e2c8;box-shadow:inset 4px 0 0 var(--ok)}
+.ranura.falta{box-shadow:inset 4px 0 0 #f5cf9a}
+.ranura h4{margin:0;font-size:14.5px;display:flex;gap:8px;align-items:center}
+.ranura p{margin:0;font-size:12px;color:var(--t2)}
+.archivo{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:6px 8px;border-radius:8px;background:var(--fondo)}
+.archivo b{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.archivo span{font-size:11px;color:var(--t3)}
+.soltar{border:1.5px dashed var(--linea-2);border-radius:10px;padding:10px;text-align:center;font-size:12px;color:var(--t2);cursor:pointer}
+.soltar:hover,.soltar.sobre{border-color:var(--azul);background:var(--suave)}
+.progreso{height:8px;border-radius:5px;background:var(--fondo);overflow:hidden}
+.progreso i{display:block;height:100%;background:var(--azul);width:0;transition:width .2s}
+/* ---------- buscador global ---------- */
+.capa{position:fixed;inset:0;background:rgba(20,23,61,.35);display:grid;justify-items:center;align-items:start;padding-top:12vh;z-index:40}
+.capa[hidden]{display:none}
+.capa .caja{width:min(640px,94vw);background:#fff;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.3);overflow:hidden}
+.capa input{width:100%;border:0;border-bottom:1px solid var(--linea);padding:16px 18px;font-size:16px;outline:none}
+.res{max-height:52vh;overflow:auto;padding:6px}
+.res .gr{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);font-weight:700;padding:8px 10px 4px}
+.res .r{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13.5px}
+.res .r:hover,.res .r.sel{background:var(--suave)}
+.res .r small{color:var(--t3);margin-left:auto;white-space:nowrap}
+#aviso{position:fixed;right:18px;bottom:18px;background:var(--tinta);color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:60;max-width:420px}
+#aviso.ver{opacity:1;transform:none}
+#aviso.mal{background:#c0121d}
+@media (max-width:900px){.app{grid-template-columns:64px minmax(0,1fr)}.dos{grid-template-columns:1fr}.vista{padding:20px}}
+</style>
+</head>
+<body>
+
+<div class="acceso" id="acceso">
+  <form class="acc-caja" id="accForm" autocomplete="off">
+    <div class="marca"><div class="logo">CyC</div><div><h1>Tableros CyC</h1><p>Concretos y Construcción · Planeación</p></div></div>
+    <label>Nombre
+      <input type="text" id="accNombre" list="accLista" placeholder="Escribe tu nombre" required>
+      <datalist id="accLista"></datalist>
+    </label>
+    <label>Token de acceso del equipo
+      <input type="password" id="accToken" placeholder="github_pat_…" required spellcheck="false">
+    </label>
+    <label class="chk"><input type="checkbox" id="accRecordar" checked> Recordar en este equipo</label>
+    <button class="btn pri" id="accBtn" type="submit" style="justify-content:center">Entrar</button>
+    <p class="msg" id="accMsg"></p>
+  </form>
+</div>
+
+<div class="app" id="app" hidden>
+  <aside class="lado" id="lado"></aside>
+  <main class="principal" id="principal"></main>
+</div>
+
+<div class="capa" id="capa" hidden><div class="caja"><input id="capaQ" placeholder="Busca un tablero, una obra o un cliente…" autocomplete="off"><div class="res" id="capaRes"></div></div></div>
+<div id="aviso"></div>
+
+<script>
+'use strict';
+const T = window.TABLEROS;
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const NOMBRES_BASE = ["Alejandro Jimenez Correa", "Alejandro Serrano Herrera", "Ana Maria Fragoso Lejarza", "Andres Cabrera Nava", "Angel Pasta Caballero", "Armando Albarran Luna", "Carlos Antonio Ramos Galvan", "Carlos David Fernandez Cuellar", "Daniel David Lopez Gregorio", "Daniela Reyna Lozano", "Enrique Chirino Andalco", "Enrique Rodriguez Quintanilla", "Enrique Rodríguez Quintanilla", "Erick Arturo Gonzalez Hernandez", "Erick Salvador Rodriguez Altamirano", "Felix Aaron Mitre Villarreal", "Fernando Reyes Bojorges", "Gerardo Castellanos Gomez", "Gerardo Jabier Gutierrez Arvizu", "German Alvarado de Los Santos", "German Hermida Barrera", "Guillermo Isauro Laserna Peraza", "Gustavo Manuel Haiek Gonzalez", "Hugo Alberto Ramírez Hanon", "Javier Gonzalez Cantu", "Javier Navarro Aguilar", "Jose Daniel Damazo Ordoñez", "Jose Rafael Lozano Montalvo", "José Manuel Soberanes Sanchez", "José Miguel López Gosain", "Juan Ricardo Ramirez Ulloa", "Lizeth Aguirre Reza", "Luis Carlos Delgado Chavez", "Manuel Humberto Ortiz M.", "Maria De Los Angeles Salazar Jimenez", "Maria Jose Castro Cervantes", "Maribel Lorencez Romero", "María Fernanda Ramírez Castillo", "María José Sulvarán Álvarez", "Miguel Salvador Garza Zambrano", "Nancy Lizbeth Acosta Lugo", "Pablo del Cojo Matute", "Rene Camara Carrilo", "Sahyra Araceli Arceo Huerta", "Uriel Cruz Acosta", "Valeria Estefany Garcia Namour", "Yaressi Alejandra Treviño Garza"];   // para el acceso; la lista vigente vive en directorio.json
+const COLOR = { pipeline: '#0003aa', reporte: '#f22230', presupuesto: '#0f766e', evaluacion: '#7c3aed' };
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+let S = { ses: null, per: null, dir: null, G: null, persona: null, commits: {}, obras: null };
+
+function aviso(t, mal) { const a = $('#aviso'); a.textContent = t; a.className = 'ver' + (mal ? ' mal' : ''); clearTimeout(a._t); a._t = setTimeout(() => a.className = '', 3800); }
+function hace(iso) {
+  if (!iso) return '';
+  const m = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (m < 1) return 'ahora'; if (m < 60) return `hace ${m} min`;
+  const h = Math.round(m / 60); if (h < 24) return `hace ${h} h`;
+  const d = Math.round(h / 24); if (d < 7) return d === 1 ? 'ayer' : `hace ${d} días`;
+  return new Date(iso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+}
+const iniciales = n => String(n || '').split(' ').filter(w => /^[A-ZÁÉÍÓÚÑ]/.test(w)).slice(0, 2).map(w => w[0]).join('');
+const rol = id => S.persona ? ((S.persona.apps || {})[id] || (S.persona.admin ? 'ver' : null)) : null;
+const misApps = () => T.APPS.filter(a => rol(a.id));
+const infoApp = id => Object.assign({}, T.APPS.find(a => a.id === id) || T.PROXIMAS.find(a => a.id === id), ((S.dir && S.dir.apps) || {})[id] || {});
+function urlApp(a) { return /^\//.test(a.url) ? location.origin + a.url : new URL(a.url, location.href).href; }
+const mesAnterior = () => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); };
+const etqMes = ym => { const [y, m] = ym.split('-'); return `${MESES[+m - 1]} ${y}`; };
+
+/* ================= ACCESO ================= */
+function nombresConocidos() {
+  const guardados = T.ls.get('tableros_cyc_nombres') || [];
+  return [...new Set(NOMBRES_BASE.concat(guardados))].sort((a, b) => a.localeCompare(b, 'es'));
+}
+async function entrar(nombre, token, recordar, auto) {
+  const msg = $('#accMsg'), btn = $('#accBtn');
+  msg.className = 'msg info'; msg.textContent = 'Conectando…'; btn.disabled = true;
+  try {
+    const G = T.gh(token);
+    const dir = await G.json(T.CFG.REPO_DATOS, 'directorio.json');
+    if (!dir) throw Object.assign(new Error('Falta directorio.json en el repositorio de datos'), { falta: true });
+    const persona = (dir.personas || []).find(p => norm(p.nombre) === norm(nombre));
+    if (!persona) throw Object.assign(new Error('Tu nombre no está en la lista de accesos. Pídele acceso a María José o a José Miguel.'), { sinAcceso: true });
+    const apps = persona.admin ? T.APPS.map(a => a.id) : Object.keys(persona.apps || {}).filter(k => persona.apps[k]);
+    if (!apps.length) throw Object.assign(new Error('Todavía no tienes tableros asignados.'), { sinAcceso: true });
+    S = { ...S, G, dir, persona, ses: { nombre: persona.nombre, token } };
+    T.ls.set(T.CFG.SESION, S.ses, recordar);
+    T.ls.set(T.CFG.PERMISOS, { persona: persona.nombre, apps: persona.apps || {}, admin: !!persona.admin }, recordar);
+    T.ls.set('tableros_cyc_nombres', (dir.personas || []).map(p => p.nombre));
+    T.sesionesApps(persona, token);
+    $('#acceso').hidden = true; $('#app').hidden = false;
+    pintaLado(); ruta();
+    const pide = new URLSearchParams(location.search).get('app');
+    if (pide && rol(pide)) { history.replaceState(null, '', location.pathname + '#app/' + pide); ruta(); }
+    cargaCommits();
+  } catch (e) {
+    btn.disabled = false;
+    msg.className = 'msg';
+    msg.textContent = e.status === 401 || e.status === 403 || e.status === 404 ? 'El token no es válido o no tiene acceso al repositorio de datos.' : e.message;
+    if (auto) { $('#acceso').hidden = false; }
+  }
+}
+function salir() { T.cerrarSesion(); location.href = location.pathname; }
+
+/* ================= LADO ================= */
+const ICON = {
+  inicio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+  archivos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v6M9 14l3-3 3 3"/></svg>',
+  actividad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
+  ruta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M4 12h16M4 18h7"/><circle cx="17" cy="6" r="2"/><circle cx="14" cy="18" r="2"/></svg>',
+  respaldos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg>',
+  accesos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M17 8v6M14 11h6"/></svg>',
+  buscar: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  salir: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg>',
+  plegar: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>'
+};
+function pintaLado() {
+  const p = S.persona;
+  const n = (h, id, ic, txt, extra) => `<a class="nav" href="#${h}" data-nav="${id}">${ic}<span>${esc(txt)}</span>${extra || ''}</a>`;
+  let h = `<div class="marca"><div class="logo">CyC</div><div><h1>Tableros CyC</h1><p>Concretos y Construcción</p></div></div>
+    <div class="buscar-lado" data-buscar>${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></div>
+    ${n('inicio', 'inicio', ICON.inicio, 'Inicio')}
+    <div class="sep">Tableros</div>
+    ${misApps().map(a => n('app/' + a.id, 'app/' + a.id, `<i class="pt" style="background:${COLOR[a.id]}"></i>`, a.nombre)).join('')}
+    <div class="sep">Equipo</div>
+    ${rol('reporte') === 'editar' ? n('archivos', 'archivos', ICON.archivos, 'Archivos del mes') : ''}
+    ${n('actividad', 'actividad', ICON.actividad, 'Actividad')}
+    ${n('ruta', 'ruta', ICON.ruta, 'Ruta a Datacreto')}
+    ${p.admin ? n('respaldos', 'respaldos', ICON.respaldos, 'Respaldos') + n('accesos', 'accesos', ICON.accesos, 'Accesos') : ''}
+    <div class="pie"><div class="avatar">${esc(iniciales(p.nombre))}</div><div class="quien"><b>${esc(p.nombre)}</b><span>${p.admin ? 'Administra' : misApps().length + ' tableros'}</span></div>
+      <button title="Plegar menú" data-plegar>${ICON.plegar}</button><button title="Salir" data-salir>${ICON.salir}</button></div>`;
+  $('#lado').innerHTML = h;
+  $('#lado [data-salir]').onclick = salir;
+  $('#lado [data-plegar]').onclick = () => $('#app').classList.toggle('compacta');
+  $('#lado [data-buscar]').onclick = abreBuscador;
+}
+function marcaNav(id) { document.querySelectorAll('[data-nav]').forEach(a => a.classList.toggle('on', a.dataset.nav === id)); }
+
+/* ================= RUTAS ================= */
+function ruta() {
+  if (!S.persona) return;
+  const h = (location.hash || '#inicio').slice(1);
+  const [v, id] = h.split('/');
+  $('#app').classList.toggle('compacta', v === 'app');
+  if (v === 'app' && rol(id)) { marcaNav('app/' + id); return vistaApp(id); }
+  if (v === 'archivos' && rol('reporte') === 'editar') { marcaNav('archivos'); return vistaArchivos(); }
+  if (v === 'actividad') { marcaNav('actividad'); return vistaActividad(); }
+  if (v === 'ruta') { marcaNav('ruta'); return vistaRuta(); }
+  if (v === 'respaldos' && S.persona.admin) { marcaNav('respaldos'); return vistaRespaldos(); }
+  if (v === 'accesos' && S.persona.admin) { marcaNav('accesos'); return vistaAccesos(); }
+  marcaNav('inicio'); vistaInicio();
+}
+window.addEventListener('hashchange', ruta);
+
+/* ================= INICIO ================= */
+const ILUS = {
+  pipeline: '<svg width="200" height="86" viewBox="0 0 200 86"><g fill="#0003aa"><rect x="10" y="12" width="120" height="10" rx="5" opacity=".9"/><rect x="10" y="30" width="90" height="10" rx="5" opacity=".6"/><rect x="10" y="48" width="140" height="10" rx="5" opacity=".75"/><rect x="10" y="66" width="60" height="10" rx="5" opacity=".4"/></g><circle cx="176" cy="22" r="10" fill="#f22230"/><circle cx="176" cy="52" r="6" fill="#6b70e8"/></svg>',
+  reporte: '<svg width="200" height="86" viewBox="0 0 200 86"><g fill="#c9ccf5"><rect x="20" y="40" width="16" height="38" rx="3"/><rect x="44" y="30" width="16" height="48" rx="3"/><rect x="68" y="46" width="16" height="32" rx="3"/><rect x="92" y="22" width="16" height="56" rx="3"/><rect x="116" y="34" width="16" height="44" rx="3"/></g><rect x="140" y="12" width="16" height="66" rx="3" fill="#0003aa"/><polyline points="28,34 52,24 76,40 100,14 124,26 148,8" fill="none" stroke="#f22230" stroke-width="2.5"/></svg>',
+  presupuesto: '<svg width="200" height="86" viewBox="0 0 200 86"><circle cx="54" cy="43" r="30" fill="none" stroke="#e2e4f2" stroke-width="12"/><circle cx="54" cy="43" r="30" fill="none" stroke="#0f766e" stroke-width="12" stroke-dasharray="120 200" transform="rotate(-90 54 43)"/><circle cx="54" cy="43" r="30" fill="none" stroke="#0003aa" stroke-width="12" stroke-dasharray="40 200" stroke-dashoffset="-122" transform="rotate(-90 54 43)"/><g fill="#0003aa"><rect x="110" y="20" width="70" height="8" rx="4" opacity=".8"/><rect x="110" y="38" width="52" height="8" rx="4" opacity=".55"/><rect x="110" y="56" width="62" height="8" rx="4" opacity=".35"/></g></svg>',
+  evaluacion: '<svg width="200" height="86" viewBox="0 0 200 86"><line x1="30" y1="76" x2="180" y2="76" stroke="#cdd0ea"/><line x1="30" y1="76" x2="30" y2="8" stroke="#cdd0ea"/><circle cx="60" cy="54" r="7" fill="#7c3aed" opacity=".5"/><circle cx="96" cy="30" r="9" fill="#7c3aed"/><circle cx="130" cy="44" r="7" fill="#0003aa" opacity=".7"/><circle cx="158" cy="18" r="10" fill="#f22230"/><circle cx="80" cy="64" r="5" fill="#0003aa" opacity=".4"/></svg>'
+};
+function saludo() { const h = new Date().getHours(); return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches'; }
+function vistaInicio() {
+  const p = S.persona;
+  const tarjeta = a => {
+    const r = rol(a.id), info = infoApp(a.id), c = (S.commits[a.id] || [])[0];
+    return `<a class="tarjeta" href="#app/${a.id}">
+      <div class="ilus">${ILUS[a.id] || ''}</div>
+      <div class="cuerpo"><h4>${esc(a.nombre)}</h4><p>${esc(info.desc)}</p>
+        <div class="etqs"><span class="etq ${r === 'editar' ? 'edita' : 'consulta'}">${r === 'editar' ? 'Puedes editar' : 'Consulta'}</span><span class="etq">${esc(info.area)}</span>${info.datacreto ? `<span class="etq estado">Datacreto: ${esc(info.datacreto)}</span>` : ''}</div>
+        <div class="ultima" data-ultima="${a.id}">${c ? `Actualizado ${hace(c.fecha)} · ${esc(c.quien)}` : 'Consultando última actualización…'}</div></div></a>`;
+  };
+  $('#principal').innerHTML = `<div class="vista">
+    <h2 class="saludo">${saludo()}, ${esc(p.nombre.split(' ')[0])}</h2>
+    <p class="sub">${misApps().length === 1 ? 'Tienes acceso a un tablero.' : `Tienes acceso a ${misApps().length} tableros.`} Todo se guarda solo y lo ve el equipo al momento.</p>
+    <div class="buscador" data-buscar>${ICON.buscar}<span>Busca un tablero, una obra o un cliente</span><kbd>Ctrl K</kbd></div>
+    <h3 class="tit">Tableros</h3>
+    <div class="apps">${misApps().map(tarjeta).join('')}</div>
+    <div class="dos">
+      <div><h3 class="tit">Lo que viene</h3><div class="proximas">${T.PROXIMAS.map(x => `<div class="proxima"><b>${esc(x.nombre)}</b><span>${esc(x.desc)}</span><div class="etqs"><span class="etq aviso">${esc(infoApp(x.id).estado || x.estado)}</span></div></div>`).join('')}</div></div>
+      <div><h3 class="tit">Actividad reciente</h3><div class="panel act" id="actInicio"><div class="vacio">Cargando…</div></div></div>
+    </div></div>`;
+  $('#principal [data-buscar]').onclick = abreBuscador;
+  pintaActividad($('#actInicio'), 8);
+}
+
+/* ================= ACTIVIDAD ================= */
+async function cargaCommits() {
+  const fuentes = [];
+  if (rol('pipeline')) fuentes.push(['pipeline', 'pipeline-datos', '']);
+  if (rol('presupuesto')) fuentes.push(['presupuesto', 'presupuesto-2027-datos', '']);
+  if (rol('reporte')) fuentes.push(['reporte', T.CFG.REPO_DATOS, 'reporte-construccion'], ['archivos', T.CFG.REPO_DATOS, 'archivos']);
+  if (rol('evaluacion')) fuentes.push(['evaluacion', T.CFG.REPO_DATOS, 'evaluacion-esquemas']);
+  await Promise.all(fuentes.map(async ([id, repo, path]) => {
+    try {
+      const cs = await S.G.commits(repo, path, 25);
+      S.commits[id] = cs.map(c => {
+        const m = c.commit.message.split('\n')[0];
+        const a = m.match(/^([^:]{3,40}):\s*(.*)$/), b = m.match(/^(.*?)\s+·\s+([^·]{3,60})$/);
+        const quien = a ? a[1] : b ? b[2] : (c.commit.author && c.commit.author.name) || '';
+        const msg = a ? a[2] : b ? 'Guardó cambios en ' + b[1] : m;
+        return { id, fecha: c.commit.author.date, msg, quien, url: c.html_url };
+      });
+    } catch (e) { S.commits[id] = []; }
+  }));
+  document.querySelectorAll('[data-ultima]').forEach(el => {
+    const c = (S.commits[el.dataset.ultima] || [])[0];
+    el.textContent = c ? `Actualizado ${hace(c.fecha)} · ${c.quien}` : 'Sin cambios registrados';
+  });
+  const box = $('#actInicio') || $('#actTodo');
+  if (box) pintaActividad(box, box.id === 'actInicio' ? 8 : 200);
+}
+function todosCommits(filtro) {
+  return Object.values(S.commits).flat().filter(c => !filtro || c.id === filtro || (filtro === 'reporte' && c.id === 'archivos')).sort((a, b) => b.fecha.localeCompare(a.fecha));
+}
+function pintaActividad(box, n, filtro) {
+  const lista = todosCommits(filtro).slice(0, n);
+  if (!Object.keys(S.commits).length) return;
+  const nombreApp = id => id === 'archivos' ? 'Archivos del mes' : (T.APPS.find(a => a.id === id) || {}).nombre;
+  box.innerHTML = lista.length ? lista.map(c => `<div class="act-item"><div class="ic" style="background:${COLOR[c.id] || COLOR.reporte}">${esc(iniciales(c.quien) || '·')}</div>
+    <div class="tx"><b title="${esc(c.msg)}">${esc(c.msg)}</b><span>${esc(c.quien)} · ${esc(nombreApp(c.id))}</span></div><time title="${new Date(c.fecha).toLocaleString('es-MX')}">${hace(c.fecha)}</time></div>`).join('')
+    : '<div class="vacio">Todavía no hay movimientos.</div>';
+}
+function vistaActividad() {
+  $('#principal').innerHTML = `<div class="vista"><h2 class="saludo" style="font-size:24px">Actividad</h2><p class="sub">Quién cambió qué en cada tablero, con fecha y hora. Todo queda en el historial y se puede regresar.</p>
+    <div class="herr"><select id="actFiltro" class="btn"><option value="">Todos los tableros</option>${misApps().map(a => `<option value="${a.id}">${esc(a.nombre)}</option>`).join('')}</select></div>
+    <div class="panel act" id="actTodo"><div class="vacio">Cargando…</div></div></div>`;
+  const pinta = () => pintaActividad($('#actTodo'), 200, $('#actFiltro').value);
+  $('#actFiltro').onchange = pinta;
+  pinta();
+}
+
+/* ================= APP EN MARCO ================= */
+function vistaApp(id) {
+  const a = T.APPS.find(x => x.id === id), r = rol(id), url = urlApp(a);
+  $('#principal').innerHTML = `<div class="vista ancha">
+    <div class="barra-app"><i class="pt" style="width:9px;height:9px;border-radius:50%;background:${COLOR[id]}"></i><h3>${esc(a.nombre)}</h3><span class="etq ${r === 'editar' ? 'edita' : 'consulta'}">${r === 'editar' ? 'Puedes editar' : 'Consulta'}</span>
+      <span class="esp"></span>
+      ${id === 'reporte' && r === 'editar' ? '<a class="btn sm" href="#archivos">Archivos del mes</a>' : ''}
+      <button class="btn sm" data-recargar>Recargar</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener">Abrir en otra pestaña ↗</a></div>
+    <iframe class="marco" src="${esc(url)}" title="${esc(a.nombre)}"></iframe></div>`;
+  $('[data-recargar]').onclick = () => { const f = $('iframe.marco'); f.src = f.src; };
+}
+
+/* ================= ARCHIVOS DEL MES ================= */
+const RANURAS = [
+  { k: 'consolidado', et: 'Consolidado EBITDA', desc: 'Cierre del mes en Excel, con real y Best Estimate.', req: true },
+  { k: 'capital', et: 'Base de capital de trabajo', desc: 'Archivo de Hugo con la hoja "BASE Ajustada".', req: false },
+  { k: 'otros', et: 'Otros archivos de soporte', desc: 'GES, conciliaciones o lo que sirva de respaldo del cierre.', req: false }
+];
+let mesArch = mesAnterior();
+async function vistaArchivos() {
+  const carpeta = `archivos/reporte-construccion/${mesArch}`;
+  $('#principal').innerHTML = `<div class="vista"><h2 class="saludo" style="font-size:24px">Archivos del mes · Reporte Construcción</h2>
+    <p class="sub">Aquí se juntan los archivos de cada cierre. Cuando estén, abre el Reporte, pulsa <b>Actualizar datos</b> y elige <b>Usar este</b>: ya no hay que volver a subirlos.</p>
+    <div class="herr">Cierre de <input type="month" id="archMes" value="${mesArch}" class="btn"><span class="esp"></span><a class="btn pri" href="#app/reporte">Ir a actualizar el Reporte</a></div>
+    <div class="ranuras" id="ranuras"><div class="vacio">Cargando…</div></div>
+    <p class="nota">Los archivos quedan en el repositorio privado de datos, con su historial. Solo quien puede actualizar el Reporte ve esta sección.</p></div>`;
+  $('#archMes').onchange = e => { mesArch = e.target.value || mesAnterior(); vistaArchivos(); };
+  let lista = [];
+  try { lista = await S.G.lista(T.CFG.REPO_DATOS, carpeta); } catch (e) { aviso('No se pudo consultar: ' + e.message, true); }
+  $('#ranuras').innerHTML = RANURAS.map(r => {
+    const fs = lista.filter(f => f.name.startsWith(r.k + '__')).sort((a, b) => b.name.localeCompare(a.name));
+    return `<div class="ranura ${fs.length ? 'lista' : r.req ? 'falta' : ''}" data-r="${r.k}">
+      <h4>${esc(r.et)} ${fs.length ? '<span class="etq edita">Cargado</span>' : r.req ? '<span class="etq aviso">Falta</span>' : '<span class="etq">Opcional</span>'}</h4>
+      <p>${esc(r.desc)}</p>
+      ${fs.map(f => `<div class="archivo"><b title="${esc(f.name.slice(r.k.length + 2))}">${esc(f.name.slice(r.k.length + 2))}</b><span>${Math.round(f.size / 1024)} KB</span><button class="btn sm" data-baja="${esc(f.path)}" data-nombre="${esc(f.name.slice(r.k.length + 2))}">Descargar</button></div>`).join('')}
+      <label class="soltar">Arrastra el archivo aquí o haz clic para elegirlo<input type="file" hidden ${r.k === 'otros' ? 'multiple' : 'accept=".xlsx,.xlsm,.xls"'}></label>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.ranura').forEach(el => {
+    const k = el.dataset.r, inp = el.querySelector('input'), zona = el.querySelector('.soltar');
+    const sube = async files => {
+      for (const f of files) {
+        zona.textContent = `Subiendo ${f.name}…`;
+        try {
+          await S.G.guardar(T.CFG.REPO_DATOS, `${carpeta}/${k}__${f.name}`, new Uint8Array(await f.arrayBuffer()), `${S.persona.nombre.split(' ').slice(0, 2).join(' ')}: subió ${RANURAS.find(r => r.k === k).et} del cierre ${mesArch}`);
+        } catch (e) { aviso(`No se subió ${f.name}: ${e.message}`, true); }
+      }
+      aviso('Archivo guardado'); vistaArchivos(); cargaCommits();
+    };
+    inp.onchange = () => inp.files.length && sube([...inp.files]);
+    ['dragover', 'dragenter'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.add('sobre'); }));
+    ['dragleave', 'drop'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.remove('sobre'); }));
+    zona.addEventListener('drop', e => e.dataTransfer.files.length && sube([...e.dataTransfer.files]));
+  });
+  document.querySelectorAll('[data-baja]').forEach(b => b.onclick = async () => {
+    const bytes = await S.G.bytes(T.CFG.REPO_DATOS, b.dataset.baja);
+    descarga(new Blob([bytes]), b.dataset.nombre);
+  });
+}
+function descarga(blob, nombre) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800); }
+
+/* ================= RUTA A DATACRETO ================= */
+const ESTADOS = ['En uso', 'En construcción', 'En revisión', 'Pausado'];
+const DATACRETO = ['', 'Por enviar', 'Entregado a Alan', 'Con Alan', 'En Datacreto'];
+function vistaRuta() {
+  const todas = T.APPS.concat(T.PROXIMAS);
+  const ed = S.persona.admin;
+  const sel = (id, campo, ops, v) => ed ? `<select data-id="${id}" data-c="${campo}">${ops.map(o => `<option ${o === v ? 'selected' : ''} value="${esc(o)}">${esc(o || '—')}</option>`).join('')}</select>` : esc(v || '—');
+  const paso = v => ({ '': 0, 'Por enviar': 1, 'Entregado a Alan': 2, 'Con Alan': 3, 'En Datacreto': 4 }[v || ''] || 0);
+  $('#principal').innerHTML = `<div class="vista"><h2 class="saludo" style="font-size:24px">Ruta a Datacreto</h2>
+    <p class="sub">Dónde está cada tablero y qué le toca a Alan. Mientras llegan a Datacreto, el equipo los usa desde aquí.</p>
+    <div class="tabla-wrap"><table class="t"><thead><tr><th>Tablero</th><th>Área</th><th>Estado</th><th>Datacreto</th><th style="width:180px">Avance</th><th>Responsable</th></tr></thead><tbody>
+    ${todas.map(a => { const i = infoApp(a.id), n = paso(i.datacreto); return `<tr><td><b>${esc(a.nombre)}</b></td><td>${esc(i.area)}</td><td>${sel(a.id, 'estado', ESTADOS, i.estado)}</td><td>${sel(a.id, 'datacreto', DATACRETO, i.datacreto)}</td>
+      <td><div class="progreso"><i style="width:${n * 25}%"></i></div></td><td>${ed ? `<input type="text" data-id="${a.id}" data-c="responsable" value="${esc(i.responsable || '')}">` : esc(i.responsable || '—')}</td></tr>`; }).join('')}
+    </tbody></table></div>
+    ${ed ? '<div class="herr" style="margin-top:12px"><span class="esp"></span><button class="btn pri" id="rutaGuardar">Guardar</button></div>' : ''}</div>`;
+  if (!ed) return;
+  $('#rutaGuardar').onclick = async () => {
+    const cambios = {};
+    document.querySelectorAll('[data-c]').forEach(el => { (cambios[el.dataset.id] = cambios[el.dataset.id] || {})[el.dataset.c] = el.value; });
+    try {
+      S.dir = await S.G.actualizarJSON(T.CFG.REPO_DATOS, 'directorio.json', d => { d.apps = d.apps || {}; Object.entries(cambios).forEach(([id, c]) => d.apps[id] = Object.assign({}, d.apps[id], c)); return d; }, `${S.persona.nombre.split(' ').slice(0, 2).join(' ')}: actualizó la ruta a Datacreto`);
+      aviso('Guardado'); vistaRuta();
+    } catch (e) { aviso('No se guardó: ' + e.message, true); }
+  };
+}
+
+/* ================= RESPALDOS ================= */
+function vistaRespaldos() {
+  $('#principal').innerHTML = `<div class="vista"><h2 class="saludo" style="font-size:24px">Respaldos</h2>
+    <p class="sub">Descarga en un solo ZIP todo lo que guardan los tableros: los datos del pipeline (obras, fichas, radar, presupuesto 2027, mensualizado) con sus archivos LUCA, el presupuesto, el Reporte con sus archivos del mes, la Evaluación y el directorio de accesos.</p>
+    <div class="panel" style="display:grid;gap:12px">
+      <div class="herr" style="margin:0"><button class="btn pri" id="resp">Descargar respaldo completo</button><span id="respTxt" class="nota" style="margin:0"></span></div>
+      <div class="progreso"><i id="respBar"></i></div>
+      <p class="nota" style="margin:0">Además, cada cambio queda en el historial de GitHub y se puede regresar a cualquier versión. Conviene descargar un respaldo al cierre de cada mes.</p>
+    </div></div>`;
+  $('#resp').onclick = respaldoCompleto;
+}
+function cargaScript(src) { return new Promise((ok, mal) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = mal; document.head.appendChild(s); }); }
+async function respaldoCompleto() {
+  const btn = $('#resp'), txt = $('#respTxt'), bar = $('#respBar');
+  btn.disabled = true;
+  try {
+    if (!window.JSZip) await cargaScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+    const zip = new JSZip();
+    const repos = ['pipeline-datos', 'presupuesto-2027-datos', T.CFG.REPO_DATOS];
+    const arboles = [];
+    for (const r of repos) {
+      try { const a = await S.G.arbol(r); arboles.push([r, a.tree.filter(x => x.type === 'blob')]); }
+      catch (e) { arboles.push([r, []]); aviso(`Sin acceso a ${r}: ${e.message}`, true); }
+    }
+    const total = arboles.reduce((s, [, l]) => s + l.length, 0);
+    let n = 0;
+    for (const [r, lista] of arboles) {
+      for (const f of lista) {
+        txt.textContent = `${r}/${f.path}`;
+        zip.file(`${r}/${f.path}`, await S.G.blob(r, f.sha));
+        bar.style.width = (++n / total * 100) + '%';
+      }
+    }
+    zip.file('LEEME.txt', `Respaldo de Tableros CyC\nGenerado: ${new Date().toLocaleString('es-MX')} por ${S.persona.nombre}\n\nCada carpeta es un repositorio privado de datos. Para restaurar, sube el archivo a la misma ruta del repositorio en GitHub (Add file → Upload files).\n`);
+    txt.textContent = 'Comprimiendo…';
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+    descarga(blob, `Respaldo_Tableros_CyC_${new Date().toISOString().slice(0, 10)}.zip`);
+    txt.textContent = `Listo: ${n} archivos`;
+  } catch (e) { aviso('No se pudo armar el respaldo: ' + e.message, true); txt.textContent = ''; }
+  btn.disabled = false;
+}
+
+/* ================= ACCESOS ================= */
+let accFiltro = '';
+function vistaAccesos() {
+  const gente = (S.dir.personas || []).slice().sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  const sel = (p, app) => { const v = (p.apps || {})[app] || ''; return `<select data-p="${esc(p.nombre)}" data-app="${app}" class="${v === 'editar' ? 'edita' : v === 'ver' ? 'consulta' : ''}"><option value="">—</option><option value="ver" ${v === 'ver' ? 'selected' : ''}>Consulta</option><option value="editar" ${v === 'editar' ? 'selected' : ''}>Edita</option></select>`; };
+  $('#principal').innerHTML = `<div class="vista"><h2 class="saludo" style="font-size:24px">Accesos</h2>
+    <p class="sub">Quién ve cada tablero. Quien no tiene acceso a un tablero no lo ve en su menú ni puede abrirlo desde aquí.</p>
+    <div class="herr"><input type="search" id="accQ" placeholder="Buscar persona…" value="${esc(accFiltro)}"><span class="esp"></span><button class="btn" id="accNueva">+ Agregar persona</button><button class="btn pri" id="accGuardar">Guardar cambios</button></div>
+    <div class="tabla-wrap"><table class="t"><thead><tr><th>Persona</th>${T.APPS.map(a => `<th>${esc(a.nombre)}</th>`).join('')}<th>Administra</th><th>Iniciales en el pipeline</th></tr></thead><tbody>
+    ${gente.filter(p => !accFiltro || norm(p.nombre).includes(norm(accFiltro))).map(p => `<tr><td><b>${esc(p.nombre)}</b></td>${T.APPS.map(a => `<td>${sel(p, a.id)}</td>`).join('')}
+      <td><input type="checkbox" data-admin="${esc(p.nombre)}" ${p.admin ? 'checked' : ''}></td><td><input type="text" data-ini="${esc(p.nombre)}" value="${esc(p.ini || '')}" size="6"></td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="nota">El Pipeline y el Presupuesto también tienen su propia lista de acceso. Si agregas a alguien nuevo a esos dos, avísame para sumarlo también ahí; el Reporte y la Evaluación solo dependen de esta lista.</p></div>`;
+  $('#accQ').oninput = e => { accFiltro = e.target.value; vistaAccesos(); $('#accQ').focus(); $('#accQ').setSelectionRange(accFiltro.length, accFiltro.length); };
+  document.querySelectorAll('select[data-app]').forEach(s => s.onchange = () => {
+    const p = S.dir.personas.find(x => x.nombre === s.dataset.p); p.apps = p.apps || {};
+    if (s.value) p.apps[s.dataset.app] = s.value; else delete p.apps[s.dataset.app];
+    s.className = s.value === 'editar' ? 'edita' : s.value === 'ver' ? 'consulta' : '';
+  });
+  document.querySelectorAll('[data-admin]').forEach(c => c.onchange = () => { S.dir.personas.find(x => x.nombre === c.dataset.admin).admin = c.checked; });
+  document.querySelectorAll('[data-ini]').forEach(c => c.onchange = () => { S.dir.personas.find(x => x.nombre === c.dataset.ini).ini = c.value.trim().toUpperCase() || undefined; });
+  $('#accNueva').onclick = () => {
+    const n = prompt('Nombre completo de la persona');
+    if (!n || !n.trim()) return;
+    if (S.dir.personas.some(p => norm(p.nombre) === norm(n))) return aviso('Esa persona ya está en la lista', true);
+    S.dir.personas.push({ nombre: n.trim(), apps: {} }); accFiltro = n.trim(); vistaAccesos();
+  };
+  $('#accGuardar').onclick = async () => {
+    const mios = S.dir.personas;
+    try {
+      S.dir = await S.G.actualizarJSON(T.CFG.REPO_DATOS, 'directorio.json', d => { d.personas = mios; d.actualizado = new Date().toISOString().slice(0, 10); return d; }, `${S.persona.nombre.split(' ').slice(0, 2).join(' ')}: actualizó los accesos`);
+      aviso('Accesos guardados. Aplican la próxima vez que cada quien entre.');
+    } catch (e) { aviso('No se guardó: ' + e.message, true); }
+  };
+}
+
+/* ================= BUSCADOR (Ctrl K) ================= */
+let selRes = 0;
+async function abreBuscador() {
+  $('#capa').hidden = false; const q = $('#capaQ'); q.value = ''; q.focus(); pintaBusqueda('');
+  if (rol('pipeline') && !S.obras) {
+    try { const d = await S.G.json('pipeline-datos', 'data.json'); S.obras = (d && d.projects) || []; pintaBusqueda(q.value); } catch (e) { S.obras = []; }
+  }
+}
+function cierraBuscador() { $('#capa').hidden = true; }
+function pintaBusqueda(q) {
+  const k = norm(q);
+  const apps = misApps().filter(a => !k || norm(a.nombre + ' ' + a.desc).includes(k));
+  const secciones = [['Archivos del mes', '#archivos', rol('reporte') === 'editar'], ['Actividad', '#actividad', true], ['Ruta a Datacreto', '#ruta', true], ['Respaldos', '#respaldos', S.persona.admin], ['Accesos', '#accesos', S.persona.admin]]
+    .filter(([n, , ok]) => ok && (!k || norm(n).includes(k)));
+  const obras = k.length >= 2 && S.obras ? S.obras.filter(o => norm([o.proyecto, o.cliente, o.estado, o.gerente].join(' ')).includes(k)).slice(0, 12) : [];
+  let h = '', i = 0;
+  const fila = (href, txt, extra) => `<div class="r ${i === selRes ? 'sel' : ''}" data-i="${i++}" data-href="${href}">${txt}${extra ? `<small>${extra}</small>` : ''}</div>`;
+  if (apps.length) h += '<div class="gr">Tableros</div>' + apps.map(a => fila('#app/' + a.id, `<i class="pt" style="width:8px;height:8px;border-radius:50%;background:${COLOR[a.id]}"></i>${esc(a.nombre)}`, esc(a.area))).join('');
+  if (secciones.length) h += '<div class="gr">Secciones</div>' + secciones.map(([n, href]) => fila(href, esc(n))).join('');
+  if (obras.length) h += '<div class="gr">Obras del pipeline</div>' + obras.map(o => fila('#app/pipeline', `<b style="font-weight:500">${esc(o.proyecto)}</b>`, esc([o.cliente, String(o.estatus || '').replace(/^\d+ - /, ''), o.concreto_total ? o.concreto_total + ' K m³' : ''].filter(Boolean).join(' · ')))).join('');
+  if (!h) h = `<div class="vacio">${k.length >= 2 && rol('pipeline') && !S.obras ? 'Cargando obras…' : 'Sin resultados'}</div>`;
+  $('#capaRes').innerHTML = h;
+  $('#capaRes').querySelectorAll('.r').forEach(r => r.onclick = () => { location.hash = r.dataset.href; cierraBuscador(); });
+}
+$('#capaQ').addEventListener('input', e => { selRes = 0; pintaBusqueda(e.target.value); });
+$('#capaQ').addEventListener('keydown', e => {
+  const rs = [...document.querySelectorAll('#capaRes .r')];
+  if (e.key === 'ArrowDown') { e.preventDefault(); selRes = Math.min(rs.length - 1, selRes + 1); pintaBusqueda(e.target.value); }
+  if (e.key === 'ArrowUp') { e.preventDefault(); selRes = Math.max(0, selRes - 1); pintaBusqueda(e.target.value); }
+  if (e.key === 'Enter' && rs[selRes]) rs[selRes].click();
+  if (e.key === 'Escape') cierraBuscador();
+});
+$('#capa').addEventListener('click', e => { if (e.target.id === 'capa') cierraBuscador(); });
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k' && S.persona) { e.preventDefault(); abreBuscador(); } });
+
+/* ================= ARRANQUE ================= */
+$('#accLista').innerHTML = nombresConocidos().map(n => `<option value="${esc(n)}">`).join('');
+$('#accForm').addEventListener('submit', e => { e.preventDefault(); entrar($('#accNombre').value, $('#accToken').value.trim(), $('#accRecordar').checked); });
+(function () {
+  const ses = T.sesion();
+  if (ses && ses.nombre && ses.token) { $('#accNombre').value = ses.nombre; $('#accToken').value = ses.token; entrar(ses.nombre, ses.token, !!localStorage.getItem(T.CFG.SESION), true); }
+  else $('#accNombre').focus();
+})();
+</script>
+</body>
+</html>
