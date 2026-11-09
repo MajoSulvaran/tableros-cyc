@@ -309,10 +309,10 @@ footer p{margin:0; color:var(--text-muted); font-weight:400;}
   <div class="act-cuerpo">
     <div class="act-archivo"><div><b>Consolidado EBITDA del mes</b>
       <span>El archivo de cierre en Excel (.xlsx), con real y Best Estimate. Si ya existe una versión con los mismos meses reales, se reemplaza.</span></div>
-      <input type="file" id="actCons" accept=".xlsx"></div>
+      <input type="file" id="actCons" accept=".xlsx,.xlsm"></div>
     <div class="act-archivo"><div><b>Base de capital de trabajo</b>
-      <span>Opcional. El archivo de Hugo con la hoja "BASE Ajustada" (.xlsx).</span></div>
-      <input type="file" id="actWc" accept=".xlsx"></div>
+      <span>Opcional. La base de Hugo con la hoja "BASE Ajustada", o el WC Estadístico (.xlsm) con la hoja "Indicador WC".</span></div>
+      <input type="file" id="actWc" accept=".xlsx,.xlsm"></div>
     <button id="actRevisar" class="act-primario">Revisar archivos</button>
     <div id="actResultado"></div>
   </div>
@@ -3184,12 +3184,15 @@ function aplicaConsolidado(D0,L,archivo){
 const RUBRO_OFICIAL={'CLIENTES FACTURACION':'Clientes','PROVISION DE INGRESO':'Cuentas por cobrar',
   'ANTICIPO PROVEEDORES':'Anticipos a proveedores','PREOPERATIVOS':'Preoperativos','INVENTARIOS':'Inventarios',
   'PROVEEDORES':'Proveedores','PROVISION DE COSTOS':'Cuentas por pagar','GASTOS DE SALIDA':'Cuentas por pagar',
-  'ANTICIPO CLIENTES':'Anticipos de clientes','RETENCIONES EN GARANTIA':'Retenciones en garantía'};
+  'ANTICIPO CLIENTES':'Anticipos de clientes','RETENCIONES EN GARANTIA':'Retenciones en garantía',
+  // nombres del archivo "WC Estadístico" (hoja Indicador WC)
+  'CUENTAS POR COBRAR CP':'Cuentas por cobrar','CUENTAS POR COBRAR':'Cuentas por cobrar','CLIENTES':'Clientes','PROVISION DE ABANDONO':'Cuentas por pagar',
+  'ANTICIPO A PROVEEDORES':'Anticipos a proveedores','ANTICIPOS DE CLIENTES':'Anticipos de clientes'};
 function leeCapital(F){
   let hi=-1;
   for(let i=0;i<Math.min(15,F.length);i++){ const v=Array.from(F[i]||[],nzA);
     if(v.includes('NEGOCIO')&&v.includes('PROYECTO')&&v.includes('RUBRO')&&v.includes('ENERO')){hi=i;break;} }
-  if(hi<0) throw new Error('No encontré el encabezado (Negocio, Proyecto, Rubro, Enero) en la base de capital de trabajo.');
+  if(hi<0) return leeCapitalAgregado(F);
   const V=Array.from(F[hi],nzA), cN=V.indexOf('NEGOCIO'), cG=V.indexOf('GRUPO'), cPr=V.indexOf('PROYECTO'),
         cR=V.indexOf('RUBRO'), cE=V.indexOf('ENERO'), cGe=V.indexOf('GERENTE');
   const filas=[], desconocidos=new Set();
@@ -3208,7 +3211,27 @@ function leeCapital(F){
   if(!filas.length) throw new Error('La base de capital de trabajo no trae renglones reconocibles.');
   return {filas,meses,cuadre,desconocidos:[...desconocidos]};
 }
+// Archivo "WC Estadístico": solo trae el saldo por rubro y mes (en millones), sin desglose por proyecto
+function leeCapitalAgregado(F){
+  let hi=-1;
+  for(let i=0;i<Math.min(30,F.length);i++){ const v=Array.from(F[i]||[],nzA); if(v.includes('RUBRO')&&v.includes('ENE')&&v.includes('DIC')){hi=i;break;} }
+  if(hi<0) throw new Error('No encontré la base por proyecto (Negocio, Proyecto, Rubro, Enero) ni la tabla de rubros por mes (hoja "Indicador WC") en el archivo de capital de trabajo.');
+  const V=Array.from(F[hi],nzA), cR=V.indexOf('RUBRO'), cE=V.indexOf('ENE');
+  const agg={}, desconocidos=new Set(), ctrl=new Array(12).fill(null);
+  for(let i=hi+1;i<F.length;i++){
+    const r=F[i]||[], nom=limpia(r[cR]); if(!nom) continue;
+    const mm=[]; for(let j=0;j<12;j++){const x=r[cE+j]; mm.push(typeof x==='number'&&isFinite(x)?r3A(x*1000):0);}
+    if(/TOTAL/.test(nzA(nom))){ mm.forEach((v,j)=>ctrl[j]=v); continue; }
+    const ru=RUBRO_OFICIAL[nzA(nom)]; if(!ru){desconocidos.add(nom); continue;}
+    mm.forEach((v,j)=>{ (agg[j]=agg[j]||{})[ru]=r3A((agg[j][ru]||0)+v); });
+  }
+  const meses=[]; for(let j=0;j<12;j++) if(agg[j]&&Object.values(agg[j]).some(v=>Math.abs(v)>0.05)) meses.push(j);
+  if(!meses.length) throw new Error('El archivo de capital de trabajo no trae saldos por rubro.');
+  const cuadre=meses.map(j=>{const s=Object.values(agg[j]).reduce((a,v)=>a+v,0); return {mes:MESES_L[j],calc:s,ctrl:ctrl[j],ok:ctrl[j]==null?null:Math.abs(s-ctrl[j])<1};});
+  return {agregado:true,agg,filas:[],meses,cuadre,desconocidos:[...desconocidos]};
+}
 function aplicaCapital(D,W){
+  if(W.agregado){ D.WC_AGG=D.WC_AGG||{}; W.meses.forEach(j=>{ D.WC_AGG[String(j)]=W.agg[j]; }); return D; }
   D.WC=W.filas;
   if(D.WC_AGG) W.meses.forEach(j=>{ delete D.WC_AGG[String(j)]; });   // la base por proyecto sustituye al saldo agregado
   return D;
@@ -3258,7 +3281,7 @@ function montaActualizador(datosActuales){
         const hoja=libro.hojas.find(h=>!h.oculta); if(!hoja) throw new Error('El consolidado no tiene hojas visibles.');
         leido.L=leeConsolidado(await libro.filas(hoja)); }
       if(fW){ const libro=await leeLibro(await fW.arrayBuffer());
-        const hoja=libro.hojas.find(h=>!h.oculta&&/base/i.test(h.nombre))||libro.hojas.find(h=>!h.oculta);
+        const hoja=libro.hojas.find(h=>!h.oculta&&/base/i.test(h.nombre))||libro.hojas.find(h=>/indicador wc/i.test(h.nombre))||libro.hojas.find(h=>/pivot wc/i.test(h.nombre))||libro.hojas.find(h=>!h.oculta);
         leido.W=leeCapital(await libro.filas(hoja)); }
       const {D,A}=construye({});
       let html='', bloqueo=false;
@@ -3287,7 +3310,7 @@ function montaActualizador(datosActuales){
       }
       if(leido.W){ const W=leido.W;
         if(W.desconocidos.length) bloqueo=true;
-        html+='<h3>Capital de trabajo · '+W.filas.length+' renglones, '+MESES_L[W.meses[0]]+'–'+MESES_L[W.meses[W.meses.length-1]]+'</h3>'+
+        html+='<h3>Capital de trabajo · '+(W.agregado?'saldos por rubro, sin desglose por proyecto, ':W.filas.length+' renglones, ')+MESES_L[W.meses[0]]+'–'+MESES_L[W.meses[W.meses.length-1]]+'</h3>'+
           (W.desconocidos.length?'<p class="act-err">Rubros que no reconozco: '+escA(W.desconocidos.join(', '))+'. Revisa el archivo antes de guardar.</p>':'')+
           '<table class="act-tabla cap"><tr><th>Mes</th><th>Suma de renglones</th><th>Control del archivo</th><th></th></tr>'+
           W.cuadre.map(c=>'<tr><td>'+c.mes+'</td><td>'+fmt(c.calc)+'</td><td>'+fmt(c.ctrl)+'</td><td class="'+(c.ok===false?'act-aviso':'act-bien')+'">'+

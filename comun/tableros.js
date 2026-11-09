@@ -14,8 +14,7 @@
     PERMISOS: 'tableros_cyc_permisos_v1',      // { persona, apps:{id:rol}, admin }
     // Sesiones de las apps que viven en sus propios repositorios (inicio de sesión único)
     SESION_PIPELINE: 'pipeline_construccion_acceso',      // { iniciales, token }
-    SESION_PRESUPUESTO: 'presupuesto2027_sesion_v1',      // { user, token }
-    SESION_EVALUACION: 'evalTerceros-v2:usuario'          // nombre del evaluador
+    SESION_PRESUPUESTO: 'presupuesto2027_sesion_v1'       // { user, token }
   };
 
   // Catálogo de apps. Lo editable (estado, ruta a Datacreto, descripción) vive en directorio.json
@@ -29,8 +28,12 @@
     { id: 'presupuesto', nombre: 'Presupuesto 2027', area: 'Soluciones Integrales', icono: 'presupuesto',
       desc: 'Captura anual por región, proyectos ancla y PEP por plaza', url: '/presupuesto-2027/', repo: 'presupuesto-2027-datos', ruta: 'presupuesto.json',
       estado: 'En uso', datacreto: 'Por enviar' },
-    { id: 'evaluacion', nombre: 'Evaluación de esquemas', area: 'Concreto', icono: 'evaluacion',
-      desc: 'Esquemas de colaboración con concreteros terceros', url: 'evaluacion-esquemas/', repo: CFG.REPO_DATOS, ruta: 'evaluacion-esquemas',
+    { id: 'soluciones', nombre: 'Reporte de Soluciones', area: 'Soluciones Integrales', icono: 'soluciones',
+      desc: 'Colocación país, Best Estimate, precios, capital de trabajo y Ppto. 2027', url: 'reporte-soluciones/', repo: CFG.REPO_DATOS, ruta: 'reporte-soluciones', privado: 'reporte-soluciones/reporte.html',
+      estado: 'En construcción', datacreto: 'Por enviar' }
+,
+    { id: 'flota', nombre: 'Mapeo de flota', area: 'Construcción', icono: 'flota',
+      desc: 'Equipos por tipo, demanda del pipeline y propuesta de desincorporación', url: 'mapeo-flota/', repo: CFG.REPO_DATOS, ruta: 'mapeo-flota', privado: 'mapeo-flota/reporte.html',
       estado: 'En uso', datacreto: 'Por enviar' }
   ];
   const PROXIMAS = [
@@ -167,7 +170,6 @@
     else ls.del(CFG.SESION_PIPELINE);
     if (ok('presupuesto') && persona.presupuesto) ls.set(CFG.SESION_PRESUPUESTO, { user: persona.presupuesto, token });
     else ls.del(CFG.SESION_PRESUPUESTO);
-    if (ok('evaluacion') && persona.evaluacion) { try { localStorage.setItem(CFG.SESION_EVALUACION, persona.evaluacion); } catch (e) { /* sin acción */ } }
   }
 
   window.TABLEROS = { CFG, APPS, PROXIMAS, ls, gh, sesion, permisos, rolEn, cerrarSesion, sesionesApps, b64encodeBytes, b64decodeBytes, realFetch };

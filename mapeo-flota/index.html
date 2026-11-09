@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapeo de flota · Tableros CyC</title>
+<script src="../comun/tableros.js"></script>
+<script src="../comun/puente.js" data-app="flota"></script>
+</head>
+<body style="font-family:Outfit,'Segoe UI',sans-serif;color:#565b85;padding:48px;text-align:center">
+<p>Cargando el Mapeo de flota…</p>
+<script>
+/* El reporte (con sus datos) vive en el repositorio privado: reporte-soluciones/reporte.html.
+   Esta página solo lo trae con la sesión de Tableros CyC y lo muestra. */
+(async function () {
+  try {
+    const html = await PUENTE.G.texto(TABLEROS.CFG.REPO_DATOS, 'mapeo-flota/reporte.html');
+    if (!html) { document.body.innerHTML = '<h2 style="color:#0003aa">Todavía no se sube el Mapeo de flota</h2><p>Súbelo desde Tableros CyC con "Subir nueva versión".</p>'; return; }
+    document.open(); document.write(html); document.close();
+    PUENTE.despues();
+  } catch (e) { document.body.innerHTML = '<h2 style="color:#0003aa">No se pudo cargar el reporte</h2><p>' + String(e.message).replace(/</g, '&lt;') + '</p>'; }
+})();
+</script>
+</body>
+</html>

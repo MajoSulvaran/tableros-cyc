@@ -41,6 +41,7 @@
     window.EVAL_CONFIG = { urlDatos: 'gh:evaluacion/datos', urlGuardar: 'gh:evaluacion/guardar' };
   }
 
+  let shaLeido = null;
   const fetchOriginal = window.fetch.bind(window);
   window.fetch = async function (url, opts) {
     const u = typeof url === 'string' ? url : (url && url.url) || '';
@@ -48,12 +49,16 @@
     opts = opts || {};
     try {
       if (u === 'gh:reporte/datos') {
+        const m = await G.meta(REPO, RUTA_REPORTE); shaLeido = m && m.sha;
         const t = await G.texto(REPO, RUTA_REPORTE);
         return t === null ? resp(404) : new Response(t, { status: 200, headers: { 'Content-Type': 'application/json' } });
       }
       if (u === 'gh:reporte/guardar') {
         if (rol !== 'editar') return resp(403, { error: 'Sin permiso para actualizar' });
         const D = JSON.parse(opts.body);
+        // Si alguien más actualizó el reporte mientras tanto, no se pisa su versión
+        const m = await G.meta(REPO, RUTA_REPORTE);
+        if (m && shaLeido && m.sha !== shaLeido) { alert('Otra persona actualizó el Reporte mientras lo revisabas. Recarga la página y vuelve a cargar tus archivos para no borrar su actualización.'); return resp(409, { error: 'Versión desactualizada' }); }
         const ver = (D.VERS || []).slice(-1)[0];
         await G.guardar(REPO, RUTA_REPORTE, JSON.stringify(D), `${corto}: actualizó el Reporte Construcción${ver && ver.l ? ' · ' + ver.l : ''}`);
         await guardarArchivosPendientes();
@@ -132,6 +137,118 @@
     pinta();
   }
 
+  // ---------- Pestaña Ppto. 2027 (Reporte Construcción y Reporte de Soluciones) ----------
+  const MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  const nf = (v, d) => (v === null || v === undefined || !isFinite(v)) ? '—' : v.toLocaleString('es-MX', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+  const escH = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const CSS_PPTO = `#view-ppto27{font-family:inherit}#view-ppto27 .pp-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:6px 0 14px}
+    #view-ppto27 .pp-k{background:#fff;border:1px solid #e2e4f2;border-radius:10px;padding:10px 12px}#view-ppto27 .pp-k span{display:block;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:#8a8fb0;font-weight:600}
+    #view-ppto27 .pp-k b{font-size:20px;color:#0003aa}#view-ppto27 .pp-k small{display:block;font-size:11px;color:#565b85}
+    #view-ppto27 .pp-card{background:#fff;border:1px solid #e2e4f2;border-radius:10px;padding:10px 12px;margin-bottom:12px;overflow:auto}
+    #view-ppto27 h3{font-size:14px;margin:0 0 8px;color:#14173d}#view-ppto27 table{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
+    #view-ppto27 th{background:#0003aa;color:#fff;font-size:10.5px;padding:6px 8px;text-align:right;white-space:nowrap}#view-ppto27 th:first-child{text-align:left}
+    #view-ppto27 td{padding:5px 8px;border-bottom:1px solid #f0f1f8;text-align:right;white-space:nowrap}#view-ppto27 td:first-child{text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+    #view-ppto27 tr.tot td{font-weight:700;background:#f4f5fd}#view-ppto27 .pp-seg{display:inline-flex;gap:4px;margin-bottom:8px}
+    #view-ppto27 .pp-seg button{font:inherit;font-size:12px;border:1px solid #cdd0ea;background:#fff;border-radius:7px;padding:4px 10px;cursor:pointer}#view-ppto27 .pp-seg button.on{background:#0003aa;color:#fff;border-color:#0003aa}
+    #view-ppto27 .pp-nota{font-size:11.5px;color:#8a8fb0;margin:4px 0 10px}`;
+  function barrasSVG(vals, linea, etqs) {
+    const W = 760, H = 210, P = { l: 46, r: 10, t: 16, b: 24 }, mx = Math.max(1, ...vals.map(v => Math.abs(v || 0)), ...(linea || []).map(v => Math.abs(v || 0)));
+    const x = i => P.l + (W - P.l - P.r) * (i + .5) / 12, y = v => P.t + (1 - (v || 0) / mx) * (H - P.t - P.b), bw = (W - P.l - P.r) / 12 * .6;
+    let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">`;
+    vals.forEach((v, i) => { s += `<rect x="${x(i) - bw / 2}" y="${Math.min(y(v), y(0))}" width="${bw}" height="${Math.abs(y(0) - y(v))}" rx="3" fill="#0003aa"><title>${MES[i]}: ${nf(v, 1)}</title></rect><text x="${x(i)}" y="${y(v) - 4}" font-size="10" text-anchor="middle" fill="#14173d">${nf(v, 0)}</text><text x="${x(i)}" y="${H - 6}" font-size="10" text-anchor="middle" fill="#565b85">${MES[i]}</text>`; });
+    if (linea) s += `<polyline fill="none" stroke="#f22230" stroke-width="2.5" points="${linea.map((v, i) => `${x(i)},${y(v)}`).join(' ')}"/>` + linea.map((v, i) => `<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="#f22230"><title>${MES[i]}: ${nf(v, 1)}</title></circle>`).join('');
+    return s + `</svg><div class="pp-nota">${etqs || ''}</div>`;
+  }
+  async function datosPptoConstruccion() {
+    const d = await G.json('pipeline-datos', 'data.json');
+    const p = d && d.presupuestos && d.presupuestos['2027'];
+    if (!p) throw new Error('Todavía no se carga el presupuesto 2027 en el pipeline (botón "Presupuesto 27").');
+    return p;
+  }
+  function pintaPptoConstruccion(box, p) {
+    const T = p.totales || {}, filas = p.filas || [];
+    const mes = k => Array.from({ length: 12 }, (_, i) => filas.reduce((a, f) => a + (((f.meses || {})[k] || [])[i] || 0), 0));
+    let met = 'venta';
+    const pinta = () => {
+      const lista = filas.slice().sort((a, b) => (b[met] || 0) - (a[met] || 0));
+      const u = met === 'volumen' ? 'K m³' : 'M MXN', dec = 1;
+      box.querySelector('[data-pp-tabla]').innerHTML = `<table><thead><tr><th>Proyecto (${u})</th>${MES.map(m => `<th>${m}</th>`).join('')}<th>Total</th></tr></thead><tbody>
+        ${lista.map(f => `<tr><td title="${escH(f.nombre)}">${escH(f.nombre)}</td>${((f.meses || {})[met] || Array(12).fill(0)).map(v => `<td>${nf(v, dec)}</td>`).join('')}<td><b>${nf(f[met], dec)}</b></td></tr>`).join('')}
+        <tr class="tot"><td>Total proyectos</td>${mes(met).map(v => `<td>${nf(v, dec)}</td>`).join('')}<td>${nf(filas.reduce((a, f) => a + (f[met] || 0), 0), dec)}</td></tr></tbody></table>`;
+      box.querySelectorAll('[data-pp-met]').forEach(b => b.classList.toggle('on', b.dataset.ppMet === met));
+    };
+    const mg = T.venta ? (T.ebitda_proyectos / T.venta * 100) : null;
+    box.innerHTML = `<style>${CSS_PPTO}</style>
+      <div class="pp-kpis"><div class="pp-k"><span>Venta 2027</span><b>$${nf(T.venta, 1)} M</b><small>${filas.length} proyectos</small></div>
+        <div class="pp-k"><span>EBITDA de proyectos</span><b>$${nf(T.ebitda_proyectos, 1)} M</b><small>Margen ${nf(mg, 1)}%</small></div>
+        ${T.ebitda_total !== undefined ? `<div class="pp-k"><span>EBITDA tras OPEX y Taller</span><b>$${nf(T.ebitda_total, 1)} M</b><small>Después de gastos centrales</small></div>` : ''}
+        <div class="pp-k"><span>Volumen</span><b>${nf(T.volumen, 1)} K m³</b><small>Concreto presupuestado</small></div></div>
+      <div class="pp-card"><h3>Venta y EBITDA mensual · M MXN</h3>${barrasSVG(mes('venta'), mes('ebitda'), 'Barras: venta · línea roja: EBITDA')}</div>
+      <div class="pp-card"><div class="pp-seg">${[['venta', 'Venta'], ['ebitda', 'EBITDA'], ['volumen', 'Volumen']].map(([k, t]) => `<button type="button" data-pp-met="${k}">${t}</button>`).join('')}</div><div data-pp-tabla></div></div>
+      <div class="pp-nota">Fuente: presupuesto 2027 cargado en el pipeline (${escH(p.archivo || '')}${p.cargado ? ', ' + new Date(p.cargado).toLocaleDateString('es-MX') : ''}). Cifras en M MXN.</div>`;
+    box.querySelectorAll('[data-pp-met]').forEach(b => b.onclick = () => { met = b.dataset.ppMet; pinta(); });
+    pinta();
+  }
+  async function datosPptoSoluciones() {
+    const [st, ref] = await Promise.all([G.json('presupuesto-2027-datos', 'presupuesto.json'), G.json('presupuesto-2027-datos', 'referencia.json')]);
+    if (!st) throw new Error('No se encontró la captura del Presupuesto 2027.');
+    return { st, ref: ref || {} };
+  }
+  function pintaPptoSoluciones(box, { st, ref }) {
+    const REG = [['cs', 'Centro Sur'], ['nb', 'Norte - Bajío'], ['pa', 'Pacífico']];
+    const TREND = [0.066717, 0.069738, 0.072759, 0.075780, 0.078802, 0.081823, 0.084844, 0.087865, 0.090886, 0.093908, 0.096929, 0.099949];
+    const meses26 = (ref.histMonths && +ref.histMonths[2026]) || 9;
+    const precioRef = r => {
+      const h = ((st.hist || {})[2026] || {})[r] || {}; const ov = ((ref.estOverride || {})[2026] || {})[r] || {};
+      const vol = typeof ov.vol === 'number' ? ov.vol : (h.vol || 0) * 12 / meses26, ing = typeof ov.ing === 'number' ? ov.ing : (h.ing || 0) * 12 / meses26;
+      return vol ? ing / vol : null;
+    };
+    const reg = REG.map(([id, n]) => { const b = (st.budget || {})[id] || {}; const pr = b.price ?? precioRef(id); const ing = (b.vol != null && pr != null) ? b.vol * pr : null;
+      return { id, n, vol: b.vol, ing, ebitda: b.ebitda, mg: ing ? b.ebitda / ing * 100 : null }; });
+    const nat = reg.reduce((a, r) => ({ vol: a.vol + (r.vol || 0), ing: a.ing + (r.ing || 0), ebitda: a.ebitda + (r.ebitda || 0) }), { vol: 0, ing: 0, ebitda: 0 });
+    const pipe = REG.map(([id, n]) => { const l = ((st.pipeline || {})[id] || []).filter(x => x.estatus !== 'perdido'); return { n, k: l.length, vol: l.reduce((a, x) => a + (x.volCx || 0), 0), venta: l.reduce((a, x) => a + (x.venta || 0), 0) }; });
+    const M = v => v == null ? '—' : '$' + nf(v / 1e6, 1) + ' M';
+    box.innerHTML = `<style>${CSS_PPTO}</style>
+      <div class="pp-kpis"><div class="pp-k"><span>Volumen 2027</span><b>${nf(nat.vol)} m³</b></div><div class="pp-k"><span>Ingreso 2027</span><b>${M(nat.ing)}</b></div>
+        <div class="pp-k"><span>EBITDA 2027</span><b>${M(nat.ebitda)}</b><small>Margen ${nf(nat.ing ? nat.ebitda / nat.ing * 100 : null, 1)}%</small></div></div>
+      <div class="pp-card"><h3>Por región</h3><table><thead><tr><th>Región</th><th>Volumen m³</th><th>Ingreso</th><th>EBITDA</th><th>Margen</th></tr></thead><tbody>
+        ${reg.map(r => `<tr><td>${r.n}</td><td>${nf(r.vol)}</td><td>${M(r.ing)}</td><td>${M(r.ebitda)}</td><td>${nf(r.mg, 1)}%</td></tr>`).join('')}
+        <tr class="tot"><td>Nacional</td><td>${nf(nat.vol)}</td><td>${M(nat.ing)}</td><td>${M(nat.ebitda)}</td><td>${nf(nat.ing ? nat.ebitda / nat.ing * 100 : null, 1)}%</td></tr></tbody></table></div>
+      <div class="pp-card"><h3>Mensualizado nacional · M MXN (perfil de tendencia del Presupuesto 2027)</h3>${barrasSVG(TREND.map(p => nat.ing * p / 1e6), TREND.map(p => nat.ebitda * p / 1e6), 'Barras: ingreso · línea roja: EBITDA')}
+        <table><thead><tr><th>Concepto</th>${MES.map(m => `<th>${m}</th>`).join('')}<th>Total</th></tr></thead><tbody>
+        <tr><td>Volumen m³</td>${TREND.map(p => `<td>${nf(nat.vol * p)}</td>`).join('')}<td><b>${nf(nat.vol)}</b></td></tr>
+        <tr><td>Ingreso M MXN</td>${TREND.map(p => `<td>${nf(nat.ing * p / 1e6, 1)}</td>`).join('')}<td><b>${nf(nat.ing / 1e6, 1)}</b></td></tr>
+        <tr><td>EBITDA M MXN</td>${TREND.map(p => `<td>${nf(nat.ebitda * p / 1e6, 1)}</td>`).join('')}<td><b>${nf(nat.ebitda / 1e6, 1)}</b></td></tr></tbody></table></div>
+      <div class="pp-card"><h3>Proyectos ancla del presupuesto</h3><table><thead><tr><th>Región</th><th>Proyectos</th><th>Vol. CEMEX K m³</th><th>Venta M MXN</th></tr></thead><tbody>
+        ${pipe.map(r => `<tr><td>${r.n}</td><td>${r.k}</td><td>${nf(r.vol, 1)}</td><td>${nf(r.venta, 1)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="pp-nota">Fuente: Presupuesto 2027 de Soluciones Integrales${st.savedAt ? ', guardado el ' + new Date(st.savedAt).toLocaleDateString('es-MX') + (st.savedBy ? ' por ' + escH(st.savedBy) : '') : ''}. El ingreso se calcula como volumen × precio, igual que en la herramienta.</div>`;
+  }
+  function pestanaPpto() {
+    const nav = document.querySelector('.switcher');
+    if (!nav || document.getElementById('view-ppto27')) return !!nav;
+    const otros = [...nav.querySelectorAll('button')];
+    const attr = otros[0] && otros[0].hasAttribute('data-tab') ? 'data-tab' : 'data-view';
+    const btn = document.createElement('button'); btn.type = 'button'; btn.setAttribute(attr, 'ppto27'); btn.textContent = 'Ppto. 2027';
+    nav.appendChild(btn);
+    const vistas = [...document.querySelectorAll('[id^="view-"]')].filter(v => v.id !== 'view-ppto27' && v.parentElement === document.querySelector('[id^="view-"]').parentElement);
+    const ultimo = vistas[vistas.length - 1];
+    const box = document.createElement('div'); box.id = 'view-ppto27'; box.style.display = 'none';
+    box.innerHTML = '<p style="padding:20px;color:#565b85">Cargando presupuesto 2027…</p>';
+    ultimo.parentElement.insertBefore(box, ultimo.nextSibling);
+    let cargado = false;
+    btn.addEventListener('click', async () => {
+      otros.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+      vistas.forEach(v => { v.style.display = 'none'; }); box.style.display = '';
+      if (cargado) return; cargado = true;
+      try {
+        if (APP === 'reporte') pintaPptoConstruccion(box, await datosPptoConstruccion());
+        else pintaPptoSoluciones(box, await datosPptoSoluciones());
+      } catch (e) { cargado = false; box.innerHTML = `<p style="padding:20px;color:#8a4b07">${escH(e.message)}</p>`; }
+    });
+    otros.forEach(b => b.addEventListener('click', () => { box.style.display = 'none'; btn.classList.remove('active'); }));
+    return true;
+  }
+
   // ---------- botón de regreso a la casa ----------
   function botonCasa() {
     if (window.top !== window) return;   // dentro de la casa ya hay barra
@@ -140,12 +257,16 @@
     a.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:9999;background:#0003aa;color:#fff;font:600 12px Outfit,Segoe UI,sans-serif;padding:7px 12px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,3,170,.3)';
     document.body.appendChild(a);
   }
-  document.addEventListener('DOMContentLoaded', () => {
+  function despues() {
     botonCasa();
+    if (APP === 'reporte' || APP === 'soluciones') { let n = 0; const t = setInterval(() => { if (pestanaPpto() || ++n > 60) clearInterval(t); }, 250); }
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    despues();
     if (APP === 'reporte' && rol === 'editar') {
       const b = document.getElementById('btnActualizar');
       if (b) b.addEventListener('click', () => setTimeout(panelArchivos, 50));
     }
   });
-  window.PUENTE = { APP, rol, persona };
+  window.PUENTE = { APP, rol, persona, despues, G };
 })();
