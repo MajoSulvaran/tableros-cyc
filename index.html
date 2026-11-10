@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tableros CyC · Concretos y Construcción</title>
+<title>Tableros CyC · Construcción</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="comun/tableros.js"></script>
@@ -155,7 +155,7 @@ a.act-item.para:hover{background:var(--fondo)}
 
 <div class="acceso" id="acceso">
   <form class="acc-caja" id="accForm" autocomplete="off">
-    <div class="marca"><div class="logo">CyC</div><div><h1>Tableros CyC</h1><p>Concretos y Construcción · Planeación</p></div></div>
+    <div class="marca"><div class="logo">CyC</div><div><h1>Tableros CyC</h1><p>Construcción · Planeación</p></div></div>
     <label>Nombre
       <select id="accNombre" required><option value="">Elige tu nombre…</option></select>
     </label>
@@ -182,7 +182,7 @@ const T = window.TABLEROS;
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
-const NOMBRES_BASE = ["Alejandro Jimenez Correa", "Alejandro Serrano Herrera", "Ana Maria Fragoso Lejarza", "Angel Pasta Caballero", "Araceli Samantha Mendoza Acero", "Armando Albarran Luna", "Carlos Antonio Ramos Galvan", "Daniel David Lopez Gregorio", "Enrique Chirino Andalco", "Enrique Rodríguez Quintanilla", "Erick Arturo Gonzalez Hernandez", "Erick Salvador Rodriguez Altamirano", "Fernando Reyes Bojorges", "Francisco Ruiz", "Gerardo Castellanos Gomez", "Guillermo Isauro Laserna Peraza", "Gustavo Flores Soto", "Hugo Alberto Ramírez Hanon", "Jesús Guadalupe Piña Carrillo", "Jose Daniel Damazo Ordoñez", "José Manuel Soberanes Sanchez", "José Miguel López Gosain", "Luis Carlos Delgado Chavez", "Manuel Humberto Ortiz M.", "Marcelo Montelongo Cepeda", "Maria De Los Angeles Salazar Jimenez", "Maria Jose Castro Cervantes", "Maribel Lorencez Romero", "María Fernanda Ramírez Castillo", "María José Sulvarán Álvarez", "Nancy Lizbeth Acosta Lugo", "Sahyra Araceli Arceo Huerta", "Uriel Cruz Acosta", "Valeria Estefany Garcia Namour", "Vency Jeanett Marin Barranco", "Yaressi Alejandra Treviño Garza"];   // para el acceso; la lista vigente vive en directorio.json
+const NOMBRES_BASE = ["Alejandro Jimenez Correa", "Alejandro Serrano Herrera", "Alejandro Treviño Cansino", "Ana Maria Fragoso Lejarza", "Angel Pasta Caballero", "Araceli Samantha Mendoza Acero", "Armando Albarran Luna", "Carlos Antonio Ramos Galvan", "Daniel David Lopez Gregorio", "Enrique Chirino Andalco", "Enrique Rodríguez Quintanilla", "Erick Arturo Gonzalez Hernandez", "Erick Salvador Rodriguez Altamirano", "Fernando Reyes Bojorges", "Francisco Ruiz", "Gerardo Castellanos Gomez", "Guillermo Isauro Laserna Peraza", "Gustavo Flores Soto", "Hugo Alberto Ramírez Hanon", "Jesús Guadalupe Piña Carrillo", "Jose Daniel Damazo Ordoñez", "José Manuel Soberanes Sanchez", "José Miguel López Gosain", "Luis Carlos Delgado Chavez", "Manuel Humberto Ortiz M.", "Marcelo Montelongo Cepeda", "Maria De Los Angeles Salazar Jimenez", "Maria Jose Castro Cervantes", "Maribel Lorencez Romero", "María Fernanda Ramírez Castillo", "María José Sulvarán Álvarez", "Nancy Lizbeth Acosta Lugo", "Sahyra Araceli Arceo Huerta", "Uriel Cruz Acosta", "Valeria Estefany Garcia Namour", "Vency Jeanett Marin Barranco", "Yaressi Alejandra Treviño Garza"];   // para el acceso; la lista vigente vive en directorio.json
 const COLOR = { pipeline: '#0003aa', reporte: '#f22230', presupuesto: '#0f766e', soluciones: '#c2410c', flota: '#15803d' };
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 let S = { ses: null, per: null, dir: null, G: null, persona: null, commits: {}, obras: null };
@@ -255,7 +255,7 @@ const ICON = {
 function pintaLado() {
   const p = S.persona;
   const n = (h, id, ic, txt, extra) => `<a class="nav" href="#${h}" data-nav="${id}" title="${esc(txt)}">${ic}<span>${esc(txt)}</span>${extra || ''}</a>`;
-  let h = `<div class="marca"><div class="logo">CyC</div><div><h1>Tableros CyC</h1><p>Concretos y Construcción</p></div><button class="pin" data-plegar></button></div>
+  let h = `<div class="marca"><div class="logo">CyC</div><div><h1>Tableros CyC</h1><p>Construcción</p></div><button class="pin" data-plegar></button></div>
     <div class="buscar-lado" data-buscar>${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></div>
     ${n('inicio', 'inicio', ICON.inicio, 'Inicio')}
     <div class="sep">Tableros</div>

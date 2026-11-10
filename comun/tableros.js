@@ -25,7 +25,7 @@
     { id: 'reporte', nombre: 'Reporte Construcción', area: 'Construcción', icono: 'reporte',
       desc: 'Resultados del mes, Best Estimate y capital de trabajo', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion',
       estado: 'En uso', datacreto: 'Entregado a Alan' },
-    { id: 'presupuesto', nombre: 'Presupuesto 2027', area: 'Soluciones Integrales', icono: 'presupuesto',
+    { id: 'presupuesto', nombre: 'Presupuesto 2027 · Soluciones', area: 'Soluciones Integrales', icono: 'presupuesto',
       desc: 'Captura anual por región, proyectos ancla y PEP por plaza', url: '/presupuesto-2027/', repo: 'presupuesto-2027-datos', ruta: 'presupuesto.json',
       estado: 'En uso', datacreto: 'Por enviar' },
     { id: 'soluciones', nombre: 'Reporte de Soluciones', area: 'Soluciones Integrales', icono: 'soluciones',
