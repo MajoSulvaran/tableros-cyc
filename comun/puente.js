@@ -33,7 +33,21 @@
   // ---------- Reporte Construcción ----------
   const RUTA_REPORTE = 'reporte-construccion/datos_tablero.json';
   if (APP === 'reporte') {
-    window.TABLERO_CONFIG = { urlDatos: 'gh:reporte/datos', urlGuardar: 'gh:reporte/guardar', puedeEditar: rol === 'editar' };
+    // El Reporte vive completo (código y datos) en reporte-construccion/reporte.html; el botón Actualizar
+    // reescribe sus datos y lo guarda con guardarReporteHTML
+    window.TABLERO_CONFIG = { puedeEditar: rol === 'editar' };
+  }
+  async function guardarReporteHTML(html, D) {
+    if (rol !== 'editar') throw new Error('Sin permiso para actualizar');
+    const ruta = 'reporte-construccion/reporte.html';
+    const m = await G.meta(REPO, ruta);
+    if (m && window.__SHA_REPORTE && m.sha !== window.__SHA_REPORTE) {
+      alert('Otra persona actualizó el Reporte mientras lo revisabas. Recarga la página y vuelve a cargar tus archivos para no borrar su actualización.');
+      throw new Error('Versión desactualizada');
+    }
+    const ver = ((D && D.VERS) || []).slice(-1)[0];
+    await G.guardar(REPO, ruta, html, `${corto}: actualizó el Reporte Construcción${ver && ver.l ? ' · ' + ver.l : ''}`);
+    await guardarArchivosPendientes();
   }
   // ---------- Evaluación de esquemas ----------
   const RUTA_EVAL = 'evaluacion-esquemas/datos.json';
@@ -259,6 +273,10 @@
   }
   function despues() {
     botonCasa();
+    if (APP === 'reporte' && rol === 'editar') {
+      const b = document.getElementById('btnActualizar');
+      if (b) b.addEventListener('click', () => setTimeout(panelArchivos, 50));
+    }
     if (APP === 'reporte' || APP === 'soluciones') { let n = 0; const t = setInterval(() => { if (pestanaPpto() || ++n > 60) clearInterval(t); }, 250); }
   }
   document.addEventListener('DOMContentLoaded', () => {
@@ -268,5 +286,5 @@
       if (b) b.addEventListener('click', () => setTimeout(panelArchivos, 50));
     }
   });
-  window.PUENTE = { APP, rol, persona, despues, G };
+  window.PUENTE = { APP, rol, persona, despues, G, guardarReporteHTML };
 })();

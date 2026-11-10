@@ -23,7 +23,7 @@
       desc: 'Obras, licitaciones, presupuesto 2027 y mensualizado', url: '/pipeline-construccion/', repo: 'pipeline-datos', ruta: 'data.json',
       estado: 'En uso', datacreto: 'Por enviar' },
     { id: 'reporte', nombre: 'Reporte Construcción', area: 'Construcción', icono: 'reporte',
-      desc: 'Resultados del mes, Best Estimate y capital de trabajo', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion',
+      desc: 'Resultados del mes, Best Estimate y capital de trabajo', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion', privado: 'reporte-construccion/reporte.html',
       estado: 'En uso', datacreto: 'Entregado a Alan' },
     { id: 'presupuesto', nombre: 'Presupuesto 2027 · Soluciones', area: 'Soluciones Integrales', icono: 'presupuesto',
       desc: 'Captura anual por región, proyectos ancla y PEP por plaza', url: '/presupuesto-2027/', repo: 'presupuesto-2027-datos', ruta: 'presupuesto.json',
