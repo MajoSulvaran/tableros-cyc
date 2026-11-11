@@ -303,9 +303,19 @@
     a.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:9999;background:#0003aa;color:#fff;font:600 12px Outfit,Segoe UI,sans-serif;padding:7px 12px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,3,170,.3)';
     document.body.appendChild(a);
   }
+  // Reporte Infraestructura: en los selectores de versión solo mes y año ("septiembre 2026")
+  function versionesLimpias() {
+    const limpia = () => document.querySelectorAll('select option').forEach(op => {
+      const t = op.textContent, n = t.replace(/^\s*Versi[oó]n\s+/i, '').replace(/\s*[·\-–]\s*preliminar\s*$/i, '');
+      if (n !== t) op.textContent = n;
+    });
+    limpia();
+    new MutationObserver(limpia).observe(document.body, { childList: true, subtree: true });
+  }
   function despues() {
     botonCasa();
     try { encabezado(); } catch (e) { console.warn(e); }
+    if (APP === 'reporte') try { versionesLimpias(); } catch (e) { console.warn(e); }
     if (APP === 'reporte' && rol === 'editar') {
       const b = document.getElementById('btnActualizar');
       if (b) b.addEventListener('click', () => setTimeout(panelArchivos, 50));
