@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tableros CyC · Construcción</title>
+<title>CIMBRA · Construcción</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="comun/tableros.js"></script>
@@ -19,8 +19,9 @@ a{color:var(--azul)}
 .acceso[hidden]{display:none}
 .acc-caja{width:min(420px,100%);background:#fff;border-radius:16px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.35);display:grid;gap:14px}
 .marca{display:flex;align-items:center;gap:12px}
-.marca .logo{width:38px;height:38px;border-radius:10px;background:var(--azul);display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px;box-shadow:inset 0 -4px 0 var(--rojo)}
-.marca h1{margin:0;font-size:20px;font-weight:600}
+.marca .logo{width:38px;height:38px;border-radius:10px;background:#1414B8;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;box-shadow:inset 0 -3px 0 var(--rojo)}
+.marca .logo i{display:block;height:3.5px;border-radius:2px;background:#fff;width:20px}.marca .logo i:nth-child(1){width:17px;background:var(--rojo)}.marca .logo i:nth-child(3){width:13px;background:#a9acf2}
+.marca h1{margin:0;font-size:20px;font-weight:700;letter-spacing:.12em}
 .marca p{margin:0;font-size:12px;color:var(--t2)}
 .acc-caja label{display:grid;gap:6px;font-size:12.5px;font-weight:600;color:var(--t2)}
 .acc-caja select,.acc-caja input[type=text],.acc-caja input[type=password]{padding:10px 12px;border:1px solid var(--linea-2);border-radius:9px;font-size:14px;color:var(--tinta)}
@@ -145,6 +146,11 @@ a.act-item.para:hover{background:var(--fondo)}
 .lado .pin:hover{background:var(--suave);color:var(--azul)}
 .app.compacta .lado .marca{flex-direction:column;gap:8px;padding-bottom:8px}
 .app.compacta .nav{justify-content:center;padding:9px 0}
+.sub-acc{display:flex;flex-direction:column;gap:1px;margin:0 0 4px 30px}
+.sub-acc:empty{display:none}
+.sub-acc a,.sub-acc button,.sub-acc label{font-size:12px;color:var(--t2);text-decoration:none;border:0;background:none;text-align:left;padding:3px 8px;border-radius:6px;cursor:pointer}
+.sub-acc a:hover,.sub-acc button:hover,.sub-acc label:hover{background:var(--fondo);color:var(--azul)}
+.app.compacta .sub-acc{display:none}
 #aviso{position:fixed;right:18px;bottom:18px;background:var(--tinta);color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:60;max-width:420px}
 #aviso.ver{opacity:1;transform:none}
 #aviso.mal{background:#c0121d}
@@ -155,7 +161,7 @@ a.act-item.para:hover{background:var(--fondo)}
 
 <div class="acceso" id="acceso">
   <form class="acc-caja" id="accForm" autocomplete="off">
-    <div class="marca"><div class="logo">CyC</div><div><h1>Tableros CyC</h1><p>Construcción · Planeación</p></div></div>
+    <div class="marca"><div class="logo"><i></i><i></i><i></i></div><div><h1>CIMBRA</h1><p>Construcción · Planeación</p></div></div>
     <label>Nombre
       <select id="accNombre" required><option value="">Elige tu nombre…</option></select>
     </label>
@@ -182,7 +188,7 @@ const T = window.TABLEROS;
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
-const NOMBRES_BASE = ["Alejandro Jimenez Correa", "Alejandro Serrano Herrera", "Alejandro Treviño Cansino", "Ana Maria Fragoso Lejarza", "Angel Pasta Caballero", "Araceli Samantha Mendoza Acero", "Armando Albarran Luna", "Carlos Antonio Ramos Galvan", "Daniel David Lopez Gregorio", "Enrique Chirino Andalco", "Enrique Rodríguez Quintanilla", "Erick Arturo Gonzalez Hernandez", "Erick Salvador Rodriguez Altamirano", "Fernando Reyes Bojorges", "Francisco Ruiz", "Gerardo Castellanos Gomez", "Guillermo Isauro Laserna Peraza", "Gustavo Flores Soto", "Hugo Alberto Ramírez Hanon", "Jesús Guadalupe Piña Carrillo", "Jose Daniel Damazo Ordoñez", "José Manuel Soberanes Sanchez", "José Miguel López Gosain", "Luis Carlos Delgado Chavez", "Manuel Humberto Ortiz M.", "Marcelo Montelongo Cepeda", "Maria De Los Angeles Salazar Jimenez", "Maria Jose Castro Cervantes", "Maribel Lorencez Romero", "María Fernanda Ramírez Castillo", "María José Sulvarán Álvarez", "Nancy Lizbeth Acosta Lugo", "Sahyra Araceli Arceo Huerta", "Uriel Cruz Acosta", "Valeria Estefany Garcia Namour", "Vency Jeanett Marin Barranco", "Yaressi Alejandra Treviño Garza"];   // para el acceso; la lista vigente vive en directorio.json
+const NOMBRES_BASE = ["Alejandro Jimenez Correa", "Alejandro Serrano Herrera", "Alejandro Treviño Cansino", "Ana Maria Fragoso Lejarza", "Angel Pasta Caballero", "Araceli Samantha Mendoza Acero", "Armando Albarran Luna", "Carlos Antonio Ramos Galvan", "Daniel David Lopez Gregorio", "Daniela Reyna Lozano", "Enrique Chirino Andalco", "Enrique Rodríguez Quintanilla", "Erick Arturo Gonzalez Hernandez", "Erick Salvador Rodriguez Altamirano", "Fernando Elizondo Garcia", "Fernando Reyes Bojorges", "Francisco Ruiz", "Gerardo Castellanos Gomez", "Guillermo Isauro Laserna Peraza", "Gustavo Flores Soto", "Hugo Alberto Ramírez Hanon", "Jesús Guadalupe Piña Carrillo", "Jose Daniel Damazo Ordoñez", "José Manuel Soberanes Sanchez", "José Miguel López Gosain", "Luis Carlos Delgado Chavez", "Manuel Humberto Ortiz M.", "Marcelo Montelongo Cepeda", "Maria De Los Angeles Salazar Jimenez", "Maria Jose Castro Cervantes", "Maribel Lorencez Romero", "María Fernanda Ramírez Castillo", "María José Sulvarán Álvarez", "Nancy Lizbeth Acosta Lugo", "Sahyra Araceli Arceo Huerta", "Uriel Cruz Acosta", "Valeria Estefany Garcia Namour", "Valeria Hernandez Hinojosa", "Vency Jeanett Marin Barranco", "Yaressi Alejandra Treviño Garza"];   // para el acceso; la lista vigente vive en directorio.json
 const COLOR = { pipeline: '#0003aa', reporte: '#f22230', presupuesto: '#0f766e', soluciones: '#c2410c', flota: '#15803d' };
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 let S = { ses: null, per: null, dir: null, G: null, persona: null, commits: {}, obras: null };
@@ -255,11 +261,11 @@ const ICON = {
 function pintaLado() {
   const p = S.persona;
   const n = (h, id, ic, txt, extra) => `<a class="nav" href="#${h}" data-nav="${id}" title="${esc(txt)}">${ic}<span>${esc(txt)}</span>${extra || ''}</a>`;
-  let h = `<div class="marca"><div class="logo">CyC</div><div><h1>Tableros CyC</h1><p>Construcción</p></div><button class="pin" data-plegar></button></div>
+  let h = `<div class="marca"><div class="logo"><i></i><i></i><i></i></div><div><h1>CIMBRA</h1><p>Construcción</p></div><button class="pin" data-plegar></button></div>
     <div class="buscar-lado" data-buscar>${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></div>
     ${n('inicio', 'inicio', ICON.inicio, 'Inicio')}
     <div class="sep">Tableros</div>
-    ${misApps().map(a => n('app/' + a.id, 'app/' + a.id, `<i class="pt" style="background:${COLOR[a.id]}"></i>`, a.nombre)).join('')}
+    ${misApps().map(a => n('app/' + a.id, 'app/' + a.id, `<i class="pt" style="background:${COLOR[a.id]}"></i>`, a.nombre) + `<div class="sub-acc" data-sub="${a.id}"></div>`).join('')}
     <div class="sep">Equipo</div>
     ${rol('reporte') === 'editar' ? n('archivos', 'archivos', ICON.archivos, 'Archivos del mes') : ''}
     ${n('actividad', 'actividad', ICON.actividad, 'Actividad')}
@@ -296,6 +302,7 @@ function ruta() {
   if (v === 'ruta') { marcaNav('ruta'); return vistaRuta(); }
   if (v === 'respaldos' && S.persona.admin) { marcaNav('respaldos'); return vistaRespaldos(); }
   if (v === 'accesos' && S.persona.admin) { marcaNav('accesos'); return vistaAccesos(); }
+  document.querySelectorAll('.sub-acc').forEach(el => el.innerHTML = '');
   marcaNav('inicio'); vistaInicio();
 }
 window.addEventListener('hashchange', ruta);
@@ -435,15 +442,16 @@ function vistaActividad() {
 /* ================= APP EN MARCO ================= */
 function vistaApp(id) {
   const a = T.APPS.find(x => x.id === id), r = rol(id), url = urlApp(a);
-  $('#principal').innerHTML = `<div class="vista ancha">
-    <div class="barra-app"><i class="pt" style="width:9px;height:9px;border-radius:50%;background:${COLOR[id]}"></i><h3>${esc(a.nombre)}</h3><span class="etq ${r === 'editar' ? 'edita' : 'consulta'}">${r === 'editar' ? 'Puedes editar' : 'Consulta'}</span>
-      <span class="esp"></span>
-      ${id === 'reporte' && r === 'editar' ? '<a class="btn sm" href="#archivos">Archivos del mes</a>' : ''}
-      ${a.privado && r === 'editar' ? '<label class="btn sm" style="cursor:pointer" title="Reemplaza el archivo que ve todo el equipo; las versiones anteriores quedan en el historial">Subir nueva versión<input type="file" accept=".html,.htm" hidden data-version></label>' : ''}
-      <button class="btn sm" data-recargar>Recargar</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener">Abrir en otra pestaña ↗</a></div>
-    <iframe class="marco" src="${esc(url)}" title="${esc(a.nombre)}"></iframe></div>`;
-  $('[data-recargar]').onclick = () => { const f = $('iframe.marco'); f.src = f.src; };
-  const v = $('[data-version]');
+  $('#principal').innerHTML = `<div class="vista ancha"><iframe class="marco" src="${esc(url)}" title="${esc(a.nombre)}"></iframe></div>`;
+  // Acciones del tablero abierto, discretas, en el menú lateral (sin un segundo encabezado)
+  document.querySelectorAll('.sub-acc').forEach(el => el.innerHTML = '');
+  const box = document.querySelector(`.sub-acc[data-sub="${id}"]`);
+  if (box) box.innerHTML = `<button type="button" data-recargar title="Recargar">↻ Recargar</button>
+    <a href="${esc(url)}" target="_blank" rel="noopener" title="Abrir en otra pestaña">↗ Otra pestaña</a>
+    ${id === 'reporte' && r === 'editar' ? '<a href="#archivos" title="Archivos del mes">▤ Archivos del mes</a>' : ''}
+    ${a.privado && r === 'editar' ? '<label title="Reemplaza el archivo que ve todo el equipo; las versiones anteriores quedan en el historial">⇪ Nueva versión<input type="file" accept=".html,.htm" hidden data-version></label>' : ''}`;
+  const rec = document.querySelector('[data-recargar]'); if (rec) rec.onclick = () => { const f = $('iframe.marco'); f.src = f.src; };
+  const v = document.querySelector('[data-version]');
   if (v) v.onchange = async () => {
     const f = v.files[0]; if (!f) return;
     aviso(`Subiendo ${f.name} (${Math.round(f.size / 1048576)} MB)…`);
@@ -562,10 +570,10 @@ async function respaldoCompleto() {
         bar.style.width = (++n / total * 100) + '%';
       }
     }
-    zip.file('LEEME.txt', `Respaldo de Tableros CyC\nGenerado: ${new Date().toLocaleString('es-MX')} por ${S.persona.nombre}\n\nCada carpeta es un repositorio privado de datos. Para restaurar, sube el archivo a la misma ruta del repositorio en GitHub (Add file → Upload files).\n`);
+    zip.file('LEEME.txt', `Respaldo de CIMBRA\nGenerado: ${new Date().toLocaleString('es-MX')} por ${S.persona.nombre}\n\nCada carpeta es un repositorio privado de datos. Para restaurar, sube el archivo a la misma ruta del repositorio en GitHub (Add file → Upload files).\n`);
     txt.textContent = 'Comprimiendo…';
     const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-    descarga(blob, `Respaldo_Tableros_CyC_${new Date().toISOString().slice(0, 10)}.zip`);
+    descarga(blob, `Respaldo_CIMBRA_${new Date().toISOString().slice(0, 10)}.zip`);
     txt.textContent = `Listo: ${n} archivos`;
   } catch (e) { aviso('No se pudo armar el respaldo: ' + e.message, true); txt.textContent = ''; }
   btn.disabled = false;

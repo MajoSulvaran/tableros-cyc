@@ -19,7 +19,7 @@
   // Sin sesión o sin permiso: de regreso a la casa
   if (!ses || !ses.token || !rol) {
     try { (window.top || window).location.href = new URL(casa, location.href).href; } catch (e) { location.href = casa; }
-    document.documentElement.innerHTML = '<body style="font-family:sans-serif;padding:40px;color:#565b85">Entrando a Tableros CyC…</body>';
+    document.documentElement.innerHTML = '<body style="font-family:sans-serif;padding:40px;color:#565b85">Entrando a CIMBRA…</body>';
     throw new Error('Sin acceso a ' + APP);
   }
   const G = T.gh(ses.token);
@@ -126,7 +126,7 @@
     const ref = cons.closest('.act-archivo') || cons.parentElement;
     ref.parentElement.insertBefore(caja, ref);
     const pinta = async () => {
-      caja.innerHTML = `<b>Archivos guardados en Tableros CyC</b> · cierre <input type="month" value="${mesElegido}" style="font:inherit;font-size:12px"> <span style="color:#565b85">cargando…</span>`;
+      caja.innerHTML = `<b>Archivos guardados en CIMBRA</b> · cierre <input type="month" value="${mesElegido}" style="font:inherit;font-size:12px"> <span style="color:#565b85">cargando…</span>`;
       caja.querySelector('input').onchange = e => { mesElegido = e.target.value || mesAnterior(); pinta(); };
       try {
         const lista = await G.lista(REPO, `${CARPETA}/${mesElegido}`);
@@ -256,23 +256,56 @@
       if (cargado) return; cargado = true;
       try {
         if (APP === 'reporte') pintaPptoConstruccion(box, await datosPptoConstruccion());
-        else pintaPptoSoluciones(box, await datosPptoSoluciones());
+        else {
+          box.innerHTML = `<iframe title="Ppto. 2027 · Soluciones" src="${location.origin}/presupuesto-2027/?embebido=1" style="width:100%;border:0;display:block;background:#fff"></iframe>`;
+          const f = box.querySelector('iframe'), alto = () => { f.style.height = Math.max(480, window.innerHeight - box.getBoundingClientRect().top - 4) + 'px'; };
+          alto(); window.addEventListener('resize', alto);
+        }
       } catch (e) { cargado = false; box.innerHTML = `<p style="padding:20px;color:#8a4b07">${escH(e.message)}</p>`; }
     });
     otros.forEach(b => b.addEventListener('click', () => { box.style.display = 'none'; btn.classList.remove('active'); }));
     return true;
   }
 
+
+  // ---------- Encabezado único (estilo Ppto 2027) y limpieza visual por tablero ----------
+  const ENC = {
+    reporte: { t: 'Reporte Infraestructura', s: 'Infraestructura Pesada', antes: '.topbar',
+      css: '.topbar .crumb,#pageTitle{display:none!important}.topbar{padding-top:0!important}' },
+    soluciones: { t: 'Reporte Soluciones', s: 'Soluciones Integrales', antes: '.switcher',
+      css: `header.hero{display:none!important}
+        .switcher{background:#fff!important;box-shadow:0 1px 0 #e2e4f2!important;padding:0 16px!important;gap:2px!important}
+        .switcher button{flex:none!important;font-size:.85rem!important;font-weight:600!important;padding:10px 14px 8px!important;border-radius:0!important;
+          background:none!important;border:0!important;border-bottom:3px solid transparent!important;color:#565b85!important}
+        .switcher button:hover{color:#1414B8!important}
+        .switcher button.active{color:#1414B8!important;border-bottom-color:#f22230!important;background:none!important}` },
+    flota: { t: 'Mapeo de flota', s: 'Construcción · Planeación', antes: 'header.top', css: 'header.top .hid{display:none!important}' }
+  };
+  function encabezado() {
+    const e = ENC[APP]; if (!e || document.getElementById('cycHdr')) return;
+    const st = document.createElement('style');
+    st.textContent = `#cycHdr{background:#1414B8;border-bottom:4px solid #f22230;color:#fff;display:flex;align-items:center;gap:12px;padding:9px 22px;font-family:Outfit,'Segoe UI',sans-serif}
+      #cycHdr .m{display:inline-flex;flex-direction:column;gap:4px}#cycHdr .m i{display:block;height:4px;border-radius:2px;background:#fff;width:30px}
+      #cycHdr .m i:nth-child(1){width:26px;background:#f22230}#cycHdr .m i:nth-child(3){width:20px;background:#a9acf2}
+      #cycHdr b{display:block;font-size:20px;font-weight:600;letter-spacing:.1px;line-height:1.2}#cycHdr small{display:block;font-size:11.5px;color:#d2d2f7}` + e.css;
+    document.head.appendChild(st);
+    const h = document.createElement('div'); h.id = 'cycHdr';
+    h.innerHTML = `<span class="m" aria-hidden="true"><i></i><i></i><i></i></span><div><b>${e.t}</b><small>${e.s}</small></div>`;
+    const ref = document.querySelector(e.antes);
+    if (ref && ref.parentElement) ref.parentElement.insertBefore(h, ref); else document.body.insertBefore(h, document.body.firstChild);
+  }
+
   // ---------- botón de regreso a la casa ----------
   function botonCasa() {
     if (window.top !== window) return;   // dentro de la casa ya hay barra
     const a = document.createElement('a');
-    a.href = '../'; a.textContent = '← Tableros CyC';
+    a.href = '../'; a.textContent = '← CIMBRA';
     a.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:9999;background:#0003aa;color:#fff;font:600 12px Outfit,Segoe UI,sans-serif;padding:7px 12px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,3,170,.3)';
     document.body.appendChild(a);
   }
   function despues() {
     botonCasa();
+    try { encabezado(); } catch (e) { console.warn(e); }
     if (APP === 'reporte' && rol === 'editar') {
       const b = document.getElementById('btnActualizar');
       if (b) b.addEventListener('click', () => setTimeout(panelArchivos, 50));

@@ -1,5 +1,5 @@
 /* =====================================================================
-   TABLEROS CyC · módulo común
+   CIMBRA · módulo común
    Sesión única, permisos por app y acceso a los repositorios privados
    de datos en GitHub. Lo usan la casa (index.html) y el puente de las
    apps que viven aquí (puente.js).
@@ -19,19 +19,18 @@
 
   // Catálogo de apps. Lo editable (estado, ruta a Datacreto, descripción) vive en directorio.json
   const APPS = [
-    { id: 'pipeline', nombre: 'Pipeline Construcción', area: 'Construcción', icono: 'pipeline',
-      desc: 'Obras, licitaciones, presupuesto 2027 y mensualizado', url: '/pipeline-construccion/', repo: 'pipeline-datos', ruta: 'data.json',
+    { id: 'pipeline', nombre: 'Pipeline', area: 'Infraestructura · CN · Soluciones', icono: 'pipeline',
+      desc: 'Obras, licitaciones, mensualizado y presupuesto 2027', url: '/pipeline-construccion/', repo: 'pipeline-datos', ruta: 'data.json',
       estado: 'En uso', datacreto: 'Por enviar' },
-    { id: 'reporte', nombre: 'Reporte Construcción', area: 'Construcción', icono: 'reporte',
-      desc: 'Resultados del mes, Best Estimate y capital de trabajo', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion', privado: 'reporte-construccion/reporte.html',
+    { id: 'reporte', nombre: 'Reporte Infraestructura', area: 'Infraestructura Pesada', icono: 'reporte',
+      desc: 'Resultados del mes, Best Estimate, capital de trabajo y Ppto. 2027', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion', privado: 'reporte-construccion/reporte.html',
       estado: 'En uso', datacreto: 'Entregado a Alan' },
-    { id: 'presupuesto', nombre: 'Presupuesto 2027 · Soluciones', area: 'Soluciones Integrales', icono: 'presupuesto',
-      desc: 'Captura anual por región, proyectos ancla y PEP por plaza', url: '/presupuesto-2027/', repo: 'presupuesto-2027-datos', ruta: 'presupuesto.json',
+    { id: 'soluciones', nombre: 'Reporte Soluciones', area: 'Soluciones Integrales', icono: 'soluciones',
+      desc: 'Colocación, Best Estimate, precios, capital de trabajo y Ppto. 2027', url: 'reporte-soluciones/', repo: CFG.REPO_DATOS, ruta: 'reporte-soluciones', privado: 'reporte-soluciones/reporte.html',
+      estado: 'En construcción', datacreto: 'Por enviar' },
+    { id: 'presupuesto', nombre: 'Ppto. 2027 · Soluciones', area: 'Soluciones Integrales', icono: 'presupuesto',
+      desc: 'Ppto 2027 por región, proyectos ancla y objetivos por plaza', url: '/presupuesto-2027/', repo: 'presupuesto-2027-datos', ruta: 'presupuesto.json',
       estado: 'En uso', datacreto: 'Por enviar' },
-    { id: 'soluciones', nombre: 'Reporte de Soluciones', area: 'Soluciones Integrales', icono: 'soluciones',
-      desc: 'Colocación país, Best Estimate, precios, capital de trabajo y Ppto. 2027', url: 'reporte-soluciones/', repo: CFG.REPO_DATOS, ruta: 'reporte-soluciones', privado: 'reporte-soluciones/reporte.html',
-      estado: 'En construcción', datacreto: 'Por enviar' }
-,
     { id: 'flota', nombre: 'Mapeo de flota', area: 'Construcción', icono: 'flota',
       desc: 'Equipos por tipo, demanda del pipeline y propuesta de desincorporación', url: 'mapeo-flota/', repo: CFG.REPO_DATOS, ruta: 'mapeo-flota', privado: 'mapeo-flota/reporte.html',
       estado: 'En uso', datacreto: 'Por enviar' }
