@@ -34,6 +34,10 @@
     { id: 'flota', nombre: 'Mapeo de flota', area: 'Construcción', icono: 'flota',
       desc: 'Equipos por tipo, demanda del pipeline y propuesta de desincorporación', url: 'mapeo-flota/', repo: CFG.REPO_DATOS, ruta: 'mapeo-flota', privado: 'mapeo-flota/reporte.html', extra: [{ ruta: 'mapeo-flota/presentacion.html', et: 'Nueva presentación' }],
       estado: 'En uso', datacreto: 'Por enviar' }
+,
+    { id: 'pep', nombre: 'PEP', area: 'Concreto', icono: 'pep',
+      desc: 'Plan Estratégico de Plaza 2027 · resultados del ejercicio nacional', url: 'pep/', repo: CFG.REPO_DATOS, ruta: 'pep', privado: 'pep/reporte.html',
+      estado: 'En uso', datacreto: 'Por enviar' }
   ];
   const PROXIMAS = [
     { id: 'pec', nombre: 'PEC 2027', area: 'Construcción', desc: 'Plan de Estrategia de Construcción', estado: 'En construcción', datacreto: 'Con Alan' },
