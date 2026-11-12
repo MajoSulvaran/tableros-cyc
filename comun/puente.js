@@ -19,7 +19,7 @@
   // Sin sesión o sin permiso: de regreso a la casa
   if (!ses || !ses.token || !rol) {
     try { (window.top || window).location.href = new URL(casa, location.href).href; } catch (e) { location.href = casa; }
-    document.documentElement.innerHTML = '<body style="font-family:sans-serif;padding:40px;color:#565b85">Entrando a CIMBRA…</body>';
+    document.documentElement.innerHTML = '<body style="font-family:sans-serif;padding:40px;color:#565b85">Entrando a NUBE…</body>';
     throw new Error('Sin acceso a ' + APP);
   }
   const G = T.gh(ses.token);
@@ -126,7 +126,7 @@
     const ref = cons.closest('.act-archivo') || cons.parentElement;
     ref.parentElement.insertBefore(caja, ref);
     const pinta = async () => {
-      caja.innerHTML = `<b>Archivos guardados en CIMBRA</b> · cierre <input type="month" value="${mesElegido}" style="font:inherit;font-size:12px"> <span style="color:#565b85">cargando…</span>`;
+      caja.innerHTML = `<b>Archivos guardados en NUBE</b> · cierre <input type="month" value="${mesElegido}" style="font:inherit;font-size:12px"> <span style="color:#565b85">cargando…</span>`;
       caja.querySelector('input').onchange = e => { mesElegido = e.target.value || mesAnterior(); pinta(); };
       try {
         const lista = await G.lista(REPO, `${CARPETA}/${mesElegido}`);
@@ -270,9 +270,9 @@
 
   // ---------- Encabezado único (estilo Ppto 2027) y limpieza visual por tablero ----------
   const ENC = {
-    reporte: { t: 'Reporte Infraestructura', s: 'Infraestructura Pesada', antes: '.topbar',
+    reporte: { t: 'Infraestructura', s: 'Infraestructura Pesada', antes: '.topbar',
       css: '.topbar .crumb,#pageTitle{display:none!important}.topbar{padding-top:0!important}' },
-    soluciones: { t: 'Reporte Soluciones', s: 'Soluciones Integrales', antes: '.switcher',
+    soluciones: { t: 'Soluciones', s: 'Soluciones Integrales', antes: '.switcher',
       css: `header.hero{display:none!important}
         .switcher{background:#fff!important;box-shadow:0 1px 0 #e2e4f2!important;padding:0 16px!important;gap:2px!important}
         .switcher button{flex:none!important;font-size:.85rem!important;font-weight:600!important;padding:10px 14px 8px!important;border-radius:0!important;
@@ -295,11 +295,79 @@
     if (ref && ref.parentElement) ref.parentElement.insertBefore(h, ref); else document.body.insertBefore(h, document.body.firstChild);
   }
 
+
+  // ---------- Mapeo de flota: pestaña "Presentación" (la lámina ejecutiva, primero) ----------
+  async function presentacionFlota() {
+    const nav = document.querySelector('nav.tabs'); if (!nav || document.getElementById('tPres')) return !!nav;
+    const tabs = [...nav.querySelectorAll('[role="tab"]')], panels = [...document.querySelectorAll('[role="tabpanel"]')];
+    if (!tabs.length || !panels.length) return false;
+    // Renumera: la presentación va primero
+    tabs.forEach(t => { const ix = t.querySelector('.ix'); if (ix && /^\d+$/.test(ix.textContent.trim())) ix.textContent = String(+ix.textContent + 1); });
+    const tab = document.createElement('button');
+    tab.className = 'tab'; tab.id = 'tPres'; tab.type = 'button'; tab.setAttribute('role', 'tab'); tab.setAttribute('aria-controls', 'pPres');
+    tab.innerHTML = '<span class="ix">1</span>Presentación';
+    nav.insertBefore(tab, tabs[0]);
+    const panel = document.createElement('section');
+    panel.className = 'panel'; panel.id = 'pPres'; panel.setAttribute('role', 'tabpanel'); panel.hidden = true;
+    panel.innerHTML = '<p style="padding:30px;color:#565b85">Cargando la presentación…</p>';
+    panels[0].parentElement.insertBefore(panel, panels[0]);
+    const st = document.createElement('style');
+    st.textContent = `#pPres .pres{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0 16px}
+      #pPres .pres-main{position:relative;background:#fff;border:1px solid #e2e4f2;border-radius:10px;overflow:hidden;box-shadow:0 8px 28px rgba(20,23,61,.12)}
+      #pPres .pres-main img{display:block;width:100%;height:100%;object-fit:contain}
+      #pPres .pres-flecha{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:0;background:rgba(20,20,184,.75);color:#fff;font-size:20px;cursor:pointer;opacity:.0;transition:opacity .2s}
+      #pPres .pres-main:hover .pres-flecha{opacity:1}#pPres .pres-ant{left:10px}#pPres .pres-sig{right:10px}
+      #pPres .pres-bar{display:flex;align-items:center;gap:10px;max-width:100%}
+      #pPres .pres-thumbs{display:flex;gap:6px;overflow-x:auto;padding:2px}
+      #pPres .pres-thumbs img{height:46px;aspect-ratio:16/9;object-fit:cover;border-radius:5px;border:2px solid transparent;cursor:pointer;opacity:.65;background:#fff}
+      #pPres .pres-thumbs img.on{border-color:#f22230;opacity:1}
+      #pPres .pres-n{font:600 12px Outfit,sans-serif;color:#565b85;white-space:nowrap}
+      #pPres .pres-full{font:600 12px Outfit,sans-serif;border:1px solid #cdd0ea;background:#fff;color:#1414B8;border-radius:7px;padding:5px 10px;cursor:pointer}`;
+    document.head.appendChild(st);
+    const muestra = () => {
+      tabs.concat(tab).forEach(t => t.setAttribute('aria-selected', t === tab ? 'true' : 'false'));
+      panels.forEach(p => { p.hidden = true; }); panel.hidden = false; ajusta();
+    };
+    tab.addEventListener('click', muestra);
+    tabs.forEach(t => t.addEventListener('click', () => { panel.hidden = true; tab.setAttribute('aria-selected', 'false'); }));
+    let imgs = [], i = 0;
+    const ajusta = () => {
+      const main = panel.querySelector('.pres-main'); if (!main || panel.hidden) return;
+      const disp = window.innerHeight - main.getBoundingClientRect().top - 78, ancho = Math.min(panel.clientWidth - 8, disp * 16 / 9);
+      main.style.width = Math.max(320, ancho) + 'px'; main.style.height = Math.max(180, ancho * 9 / 16) + 'px';
+    };
+    const ir = k => {
+      if (!imgs.length) return; i = (k + imgs.length) % imgs.length;
+      panel.querySelector('.pres-main img').src = imgs[i];
+      panel.querySelectorAll('.pres-thumbs img').forEach((t, j) => t.classList.toggle('on', j === i));
+      panel.querySelector('.pres-n').textContent = `${i + 1} / ${imgs.length}`;
+    };
+    try {
+      const html = await G.texto(REPO, 'mapeo-flota/presentacion.html');
+      if (!html) { panel.innerHTML = '<p style="padding:30px;color:#565b85">Todavía no se sube la presentación. Súbela desde NUBE con "Nueva presentación".</p>'; }
+      else {
+        const d = new DOMParser().parseFromString(html, 'text/html');
+        imgs = [...d.querySelectorAll('img')].map(x => x.getAttribute('src')).filter(Boolean);
+        panel.innerHTML = `<div class="pres"><div class="pres-main"><img alt="Lámina"><button class="pres-flecha pres-ant" title="Anterior">‹</button><button class="pres-flecha pres-sig" title="Siguiente">›</button></div>
+          <div class="pres-bar"><span class="pres-n"></span><div class="pres-thumbs">${imgs.map((src, j) => `<img src="${src}" data-j="${j}" alt="Lámina ${j + 1}">`).join('')}</div><button class="pres-full" type="button">Pantalla completa</button></div></div>`;
+        panel.querySelector('.pres-ant').onclick = () => ir(i - 1);
+        panel.querySelector('.pres-sig').onclick = () => ir(i + 1);
+        panel.querySelectorAll('.pres-thumbs img').forEach(t => t.onclick = () => ir(+t.dataset.j));
+        panel.querySelector('.pres-full').onclick = () => { const m = panel.querySelector('.pres-main'); (m.requestFullscreen || m.webkitRequestFullscreen || (() => {})).call(m); };
+        document.addEventListener('keydown', e => { if (panel.hidden) return; if (e.key === 'ArrowRight') ir(i + 1); if (e.key === 'ArrowLeft') ir(i - 1); });
+        window.addEventListener('resize', ajusta);
+        ir(0);
+      }
+    } catch (e) { panel.innerHTML = '<p style="padding:30px;color:#8a4b07">No se pudo cargar la presentación: ' + e.message + '</p>'; }
+    muestra();
+    return true;
+  }
+
   // ---------- botón de regreso a la casa ----------
   function botonCasa() {
     if (window.top !== window) return;   // dentro de la casa ya hay barra
     const a = document.createElement('a');
-    a.href = '../'; a.textContent = '← CIMBRA';
+    a.href = '../'; a.textContent = '← NUBE';
     a.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:9999;background:#0003aa;color:#fff;font:600 12px Outfit,Segoe UI,sans-serif;padding:7px 12px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,3,170,.3)';
     document.body.appendChild(a);
   }
@@ -316,6 +384,7 @@
     botonCasa();
     try { encabezado(); } catch (e) { console.warn(e); }
     if (APP === 'reporte') try { versionesLimpias(); } catch (e) { console.warn(e); }
+    if (APP === 'flota') { let n = 0; const t = setInterval(async () => { if (await presentacionFlota() || ++n > 40) clearInterval(t); }, 250); }
     if (APP === 'reporte' && rol === 'editar') {
       const b = document.getElementById('btnActualizar');
       if (b) b.addEventListener('click', () => setTimeout(panelArchivos, 50));

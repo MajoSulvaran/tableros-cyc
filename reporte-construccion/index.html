@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Reporte Construcción · CIMBRA</title>
+<title>Reporte Construcción · NUBE</title>
 <script src="../comun/tableros.js"></script>
 <script src="../comun/puente.js" data-app="reporte"></script>
 </head>
@@ -11,12 +11,12 @@
 <p>Cargando el Reporte Construcción…</p>
 <script>
 /* El reporte (con sus datos) vive en el repositorio privado: reporte-construccion/reporte.html.
-   Esta página solo lo trae con la sesión de CIMBRA y lo muestra. */
+   Esta página solo lo trae con la sesión de NUBE y lo muestra. */
 (async function () {
   try {
     const ruta = 'reporte-construccion/reporte.html';
     const [meta, html] = await Promise.all([PUENTE.G.meta(TABLEROS.CFG.REPO_DATOS, ruta), PUENTE.G.texto(TABLEROS.CFG.REPO_DATOS, ruta)]);
-    if (!html) { document.body.innerHTML = '<h2 style="color:#0003aa">Todavía no se sube el Reporte Construcción</h2><p>Súbelo desde CIMBRA con "Subir nueva versión".</p>'; return; }
+    if (!html) { document.body.innerHTML = '<h2 style="color:#0003aa">Todavía no se sube el Reporte Construcción</h2><p>Súbelo desde NUBE con "Subir nueva versión".</p>'; return; }
     window.__FUENTE_HTML = html;            // el actualizador reescribe los datos sobre este texto
     window.__SHA_REPORTE = meta && meta.sha; // para no pisar una actualización de otra persona
     document.open(); document.write(html); document.close();

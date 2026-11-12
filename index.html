@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CIMBRA · Construcción</title>
+<title>NUBE · Construcción</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="comun/tableros.js"></script>
@@ -161,7 +161,7 @@ a.act-item.para:hover{background:var(--fondo)}
 
 <div class="acceso" id="acceso">
   <form class="acc-caja" id="accForm" autocomplete="off">
-    <div class="marca"><div class="logo"><i></i><i></i><i></i></div><div><h1>CIMBRA</h1><p>Construcción · Planeación</p></div></div>
+    <div class="marca"><div class="logo"><i></i><i></i><i></i></div><div><h1>NUBE</h1><p>Construcción · Planeación</p></div></div>
     <label>Nombre
       <select id="accNombre" required><option value="">Elige tu nombre…</option></select>
     </label>
@@ -204,7 +204,7 @@ function hace(iso) {
 }
 const iniciales = n => String(n || '').split(' ').filter(w => /^[A-ZÁÉÍÓÚÑ]/.test(w)).slice(0, 2).map(w => w[0]).join('');
 const rol = id => S.persona ? ((S.persona.apps || {})[id] || (S.persona.admin ? 'ver' : null)) : null;
-const misApps = () => T.APPS.filter(a => rol(a.id));
+const misApps = () => T.APPS.filter(a => !a.oculto && rol(a.id));   // el Ppto. 2027 vive dentro de Soluciones
 const infoApp = id => Object.assign({}, T.APPS.find(a => a.id === id) || T.PROXIMAS.find(a => a.id === id), ((S.dir && S.dir.apps) || {})[id] || {});
 function urlApp(a) { return /^\//.test(a.url) ? location.origin + a.url : new URL(a.url, location.href).href; }
 const mesAnterior = () => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); };
@@ -261,7 +261,7 @@ const ICON = {
 function pintaLado() {
   const p = S.persona;
   const n = (h, id, ic, txt, extra) => `<a class="nav" href="#${h}" data-nav="${id}" title="${esc(txt)}">${ic}<span>${esc(txt)}</span>${extra || ''}</a>`;
-  let h = `<div class="marca"><div class="logo"><i></i><i></i><i></i></div><div><h1>CIMBRA</h1><p>Construcción</p></div><button class="pin" data-plegar></button></div>
+  let h = `<div class="marca"><div class="logo"><i></i><i></i><i></i></div><div><h1>NUBE</h1><p>Construcción</p></div><button class="pin" data-plegar></button></div>
     <div class="buscar-lado" data-buscar>${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></div>
     ${n('inicio', 'inicio', ICON.inicio, 'Inicio')}
     <div class="sep">Tableros</div>
@@ -449,8 +449,16 @@ function vistaApp(id) {
   if (box) box.innerHTML = `<button type="button" data-recargar title="Recargar">↻ Recargar</button>
     <a href="${esc(url)}" target="_blank" rel="noopener" title="Abrir en otra pestaña">↗ Otra pestaña</a>
     ${id === 'reporte' && r === 'editar' ? '<a href="#archivos" title="Archivos del mes">▤ Archivos del mes</a>' : ''}
-    ${a.privado && r === 'editar' ? '<label title="Reemplaza el archivo que ve todo el equipo; las versiones anteriores quedan en el historial">⇪ Nueva versión<input type="file" accept=".html,.htm" hidden data-version></label>' : ''}`;
+    ${a.privado && r === 'editar' ? '<label title="Reemplaza el archivo que ve todo el equipo; las versiones anteriores quedan en el historial">⇪ Nueva versión<input type="file" accept=".html,.htm" hidden data-version></label>' : ''}
+    ${r === 'editar' ? (a.extra || []).map((x, i) => `<label title="Reemplaza el archivo para todo el equipo">⇪ ${esc(x.et)}<input type="file" accept=".html,.htm" hidden data-extra="${i}"></label>`).join('') : ''}`;
   const rec = document.querySelector('[data-recargar]'); if (rec) rec.onclick = () => { const f = $('iframe.marco'); f.src = f.src; };
+  document.querySelectorAll('[data-extra]').forEach(inp => inp.onchange = async () => {
+    const f = inp.files[0], x = (a.extra || [])[+inp.dataset.extra]; if (!f || !x) return;
+    aviso(`Subiendo ${f.name}…`);
+    try { await S.G.guardar(T.CFG.REPO_DATOS, x.ruta, new Uint8Array(await f.arrayBuffer()), `${S.persona.nombre.split(' ').slice(0, 2).join(' ')}: ${x.et.toLowerCase()} de ${a.nombre} (${f.name})`);
+      aviso('Listo, ya está publicada'); const fr = $('iframe.marco'); fr.src = fr.src; cargaCommits(); }
+    catch (e) { aviso(`No se pudo subir: súbelo a mano en tableros-cyc-datos/${x.ruta}`, true); }
+  });
   const v = document.querySelector('[data-version]');
   if (v) v.onchange = async () => {
     const f = v.files[0]; if (!f) return;
@@ -570,10 +578,10 @@ async function respaldoCompleto() {
         bar.style.width = (++n / total * 100) + '%';
       }
     }
-    zip.file('LEEME.txt', `Respaldo de CIMBRA\nGenerado: ${new Date().toLocaleString('es-MX')} por ${S.persona.nombre}\n\nCada carpeta es un repositorio privado de datos. Para restaurar, sube el archivo a la misma ruta del repositorio en GitHub (Add file → Upload files).\n`);
+    zip.file('LEEME.txt', `Respaldo de NUBE\nGenerado: ${new Date().toLocaleString('es-MX')} por ${S.persona.nombre}\n\nCada carpeta es un repositorio privado de datos. Para restaurar, sube el archivo a la misma ruta del repositorio en GitHub (Add file → Upload files).\n`);
     txt.textContent = 'Comprimiendo…';
     const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-    descarga(blob, `Respaldo_CIMBRA_${new Date().toISOString().slice(0, 10)}.zip`);
+    descarga(blob, `Respaldo_NUBE_${new Date().toISOString().slice(0, 10)}.zip`);
     txt.textContent = `Listo: ${n} archivos`;
   } catch (e) { aviso('No se pudo armar el respaldo: ' + e.message, true); txt.textContent = ''; }
   btn.disabled = false;

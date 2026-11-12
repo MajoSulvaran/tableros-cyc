@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mapeo de flota · CIMBRA</title>
+<title>Mapeo de flota · NUBE</title>
 <script src="../comun/tableros.js"></script>
 <script src="../comun/puente.js" data-app="flota"></script>
 </head>
@@ -11,11 +11,11 @@
 <p>Cargando el Mapeo de flota…</p>
 <script>
 /* El reporte (con sus datos) vive en el repositorio privado: reporte-soluciones/reporte.html.
-   Esta página solo lo trae con la sesión de CIMBRA y lo muestra. */
+   Esta página solo lo trae con la sesión de NUBE y lo muestra. */
 (async function () {
   try {
     const html = await PUENTE.G.texto(TABLEROS.CFG.REPO_DATOS, 'mapeo-flota/reporte.html');
-    if (!html) { document.body.innerHTML = '<h2 style="color:#0003aa">Todavía no se sube el Mapeo de flota</h2><p>Súbelo desde CIMBRA con "Subir nueva versión".</p>'; return; }
+    if (!html) { document.body.innerHTML = '<h2 style="color:#0003aa">Todavía no se sube el Mapeo de flota</h2><p>Súbelo desde NUBE con "Subir nueva versión".</p>'; return; }
     document.open(); document.write(html); document.close();
     PUENTE.despues();
   } catch (e) { document.body.innerHTML = '<h2 style="color:#0003aa">No se pudo cargar el reporte</h2><p>' + String(e.message).replace(/</g, '&lt;') + '</p>'; }
