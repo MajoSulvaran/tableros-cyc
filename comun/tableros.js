@@ -25,9 +25,12 @@
     { id: 'reporte', nombre: 'Infraestructura', area: 'Infraestructura Pesada', icono: 'reporte',
       desc: 'Resultados del mes, Best Estimate, capital de trabajo y Ppto. 2027', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion', privado: 'reporte-construccion/reporte.html',
       estado: 'En uso', datacreto: 'Entregado a Alan' },
-    { id: 'soluciones', nombre: 'Soluciones', area: 'Soluciones Integrales', icono: 'soluciones',
+    { id: 'soluciones', nombre: 'Soluciones Integrales', area: 'Soluciones Integrales', icono: 'soluciones',
       desc: 'Colocación, Best Estimate, precios, capital de trabajo y Ppto. 2027', url: 'reporte-soluciones/', repo: CFG.REPO_DATOS, ruta: 'reporte-soluciones', privado: 'reporte-soluciones/reporte.html',
       estado: 'En construcción', datacreto: 'Por enviar' },
+    { id: 'cn', nombre: 'Cuentas Nacionales', area: 'Cuentas Nacionales', icono: 'cn',
+      desc: 'Pipeline de la Dirección de Cuentas Nacionales: obras, mensualizado y licitaciones', url: '/pipeline-construccion/?direccion=Cuentas%20Nacionales', repo: 'pipeline-datos', ruta: 'data.json',
+      estado: 'En uso', datacreto: 'Por enviar' },
     { id: 'presupuesto', oculto: true, nombre: 'Ppto. 2027 · Soluciones', area: 'Soluciones Integrales', icono: 'presupuesto',
       desc: 'Ppto 2027 por región, proyectos ancla y objetivos por plaza', url: '/presupuesto-2027/', repo: 'presupuesto-2027-datos', ruta: 'presupuesto.json',
       estado: 'En uso', datacreto: 'Por enviar' },
@@ -38,6 +41,16 @@
     { id: 'pep', nombre: 'PEP', area: 'Concreto', icono: 'pep',
       desc: 'Plan Estratégico de Plaza 2027 · resultados del ejercicio nacional', url: 'pep/', repo: CFG.REPO_DATOS, ruta: 'pep', privado: 'pep/reporte.html',
       estado: 'En uso', datacreto: 'Por enviar' }
+,
+    { id: 'seg-congruencia', grupo: 'Seguridad', nombre: 'Indicadores de congruencia', area: 'Seguridad', icono: 'seguridad',
+      desc: 'Liderazgo en Seguridad: cumplimiento semanal por gerente, ubicación y persona', url: 'seguridad-congruencia/', repo: CFG.REPO_DATOS, ruta: 'seguridad',
+      privado: 'seguridad/congruencia.html', memoria: { clave: 'rutinas_seg_construccion_v1', ruta: 'seguridad/congruencia_datos.json' }, estado: 'En uso', datacreto: 'Por enviar' },
+    { id: 'seg-rutinas', grupo: 'Seguridad', nombre: 'Rutinas de seguridad', area: 'Seguridad', icono: 'seguridad',
+      desc: 'Rutinas de seguridad de Construcción', url: 'seguridad-rutinas/', repo: CFG.REPO_DATOS, ruta: 'seguridad', privado: 'seguridad/rutinas.html',
+      estado: 'En construcción', datacreto: '' },
+    { id: 'seg-agenda', grupo: 'Seguridad', nombre: 'Agenda de líderes', area: 'Seguridad', icono: 'seguridad',
+      desc: 'Agenda de líderes en seguridad', url: 'seguridad-agenda/', repo: CFG.REPO_DATOS, ruta: 'seguridad', privado: 'seguridad/agenda.html',
+      estado: 'En construcción', datacreto: '' }
   ];
   const PROXIMAS = [
     { id: 'pec', nombre: 'PEC 2027', area: 'Construcción', desc: 'Plan de Estrategia de Construcción', estado: 'En construcción', datacreto: 'Con Alan' },

@@ -271,15 +271,15 @@
   // ---------- Encabezado único (estilo Ppto 2027) y limpieza visual por tablero ----------
   const ENC = {
     reporte: { t: 'Infraestructura', s: 'Infraestructura Pesada', antes: '.topbar',
-      css: '.topbar .crumb,#pageTitle{display:none!important}.topbar{padding-top:0!important}' },
-    soluciones: { t: 'Soluciones', s: 'Soluciones Integrales', antes: '.switcher',
+      css: '.topbar .crumb,#pageTitle{display:none!important}.topbar{padding-top:0!important}.switcher button[data-view="venta"]{display:none!important}' },
+    soluciones: { t: 'Soluciones Integrales', s: 'Reporte de resultados', antes: '.switcher',
       css: `header.hero{display:none!important}
         .switcher{background:#fff!important;box-shadow:0 1px 0 #e2e4f2!important;padding:0 16px!important;gap:2px!important}
         .switcher button{flex:none!important;font-size:.85rem!important;font-weight:600!important;padding:10px 14px 8px!important;border-radius:0!important;
           background:none!important;border:0!important;border-bottom:3px solid transparent!important;color:#565b85!important}
         .switcher button:hover{color:#1414B8!important}
         .switcher button.active{color:#1414B8!important;border-bottom-color:#f22230!important;background:none!important}` },
-    flota: { t: 'Mapeo de flota', s: 'Construcción · Planeación', antes: 'header.top', css: 'header.top .hid{display:none!important}' }
+    flota: { t: 'Mapeo de flota', s: 'Construcción · Planeación', antes: 'header.top', css: 'header.top .hid{display:none!important}.find .fd{display:none!important}nav.tabs{scrollbar-width:none}nav.tabs::-webkit-scrollbar{display:none}' }
   };
   function encabezado() {
     const e = ENC[APP]; if (!e || document.getElementById('cycHdr')) return;
@@ -380,8 +380,15 @@
     limpia();
     new MutationObserver(limpia).observe(document.body, { childList: true, subtree: true });
   }
+  const TIT_SEG = { 'seg-congruencia': 'Indicadores de congruencia', 'seg-rutinas': 'Rutinas de seguridad', 'seg-agenda': 'Agenda de líderes' };
+  function tituloSeguridad() {
+    if (!TIT_SEG[APP]) return;
+    const t = document.querySelector('.hdr .ttl'), sb = document.querySelector('.hdr .sub');
+    if (t) t.textContent = TIT_SEG[APP]; if (sb) sb.textContent = 'Seguridad · Construcción';
+  }
   function despues() {
     botonCasa();
+    try { tituloSeguridad(); } catch (e) { console.warn(e); }
     try { encabezado(); } catch (e) { console.warn(e); }
     if (APP === 'reporte') try { versionesLimpias(); } catch (e) { console.warn(e); }
     if (APP === 'flota') { let n = 0; const t = setInterval(async () => { if (await presentacionFlota() || ++n > 40) clearInterval(t); }, 250); }
