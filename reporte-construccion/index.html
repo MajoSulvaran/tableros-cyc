@@ -13,6 +13,8 @@
 /* El reporte (con sus datos) vive en el repositorio privado: reporte-construccion/reporte.html.
    Esta página solo lo trae con la sesión de NUBE y lo muestra. */
 (async function () {
+  // Quien solo tiene permiso del pipeline ve la pestaña Pipeline de este negocio
+  if (PUENTE.soloPipeline) { PUENTE.soloPipeline(); return; }
   try {
     const ruta = 'reporte-construccion/reporte.html';
     const [meta, html] = await Promise.all([PUENTE.G.meta(TABLEROS.CFG.REPO_DATOS, ruta), PUENTE.G.texto(TABLEROS.CFG.REPO_DATOS, ruta)]);

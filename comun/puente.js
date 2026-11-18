@@ -14,10 +14,14 @@
   const APP = yo && yo.dataset.app;
   const ses = T.sesion(), per = T.permisos();
   const rol = T.rolEn(APP);
+  // Negocios: la primera pestaña es su Pipeline; con solo el permiso del pipeline se entra a esa pestaña
+  const NEGOCIO = { reporte: 'Infraestructura Pesada', soluciones: 'Soluciones', cn: 'Cuentas Nacionales' };
+  const rolPipe = T.rolEn('pipeline');
+  const soloPipe = !!(NEGOCIO[APP] && !rol && rolPipe);
   const casa = '../?app=' + encodeURIComponent(APP || '');
 
   // Sin sesión o sin permiso: de regreso a la casa
-  if (!ses || !ses.token || !rol) {
+  if (!ses || !ses.token || (!rol && !soloPipe)) {
     try { (window.top || window).location.href = new URL(casa, location.href).href; } catch (e) { location.href = casa; }
     document.documentElement.innerHTML = '<body style="font-family:sans-serif;padding:40px;color:#565b85">Entrando a NUBE…</body>';
     throw new Error('Sin acceso a ' + APP);
@@ -279,6 +283,7 @@
           background:none!important;border:0!important;border-bottom:3px solid transparent!important;color:#565b85!important}
         .switcher button:hover{color:#1414B8!important}
         .switcher button.active{color:#1414B8!important;border-bottom-color:#f22230!important;background:none!important}` },
+    cn: { t: 'Cuentas Nacionales', s: 'Reporte de resultados', antes: '.switcher', css: '' },
     flota: { t: 'Mapeo de flota', s: 'Construcción · Planeación', antes: 'header.top', css: 'header.top .hid{display:none!important}.find .fd{display:none!important}nav.tabs{scrollbar-width:none}nav.tabs::-webkit-scrollbar{display:none}' }
   };
   function encabezado() {
@@ -363,6 +368,50 @@
     return true;
   }
 
+
+  // ---------- Pestaña Pipeline (primera) en cada negocio ----------
+  const urlPipeline = () => `${location.origin}/pipeline-construccion/?direccion=${encodeURIComponent(NEGOCIO[APP])}&embebido=1`;
+  function pestanaPipeline() {
+    const nav = document.querySelector('.switcher');
+    if (!nav || document.getElementById('view-pipeline')) return !!nav;
+    const otros = [...nav.querySelectorAll('button')];
+    if (!otros.length) return false;
+    const attr = otros[0].hasAttribute('data-tab') ? 'data-tab' : 'data-view';
+    const btn = document.createElement('button'); btn.type = 'button'; btn.setAttribute(attr, 'pipeline'); btn.textContent = 'Pipeline';
+    nav.insertBefore(btn, otros[0]);
+    const primera = document.querySelector('[id^="view-"]');
+    const box = document.createElement('div'); box.id = 'view-pipeline'; box.style.display = 'none';
+    primera.parentElement.insertBefore(box, primera);
+    if (!document.getElementById('ppOcultoCss')) { const st = document.createElement('style'); st.id = 'ppOcultoCss'; st.textContent = '.pp-oculto{display:none!important}'; document.head.appendChild(st); }
+    // Mientras el Pipeline está abierto, las demás vistas se esconden con una clase (sin tocar cómo las maneja el reporte)
+    const otrasVistas = () => [...document.querySelectorAll('[id^="view-"]')].filter(v => v !== box && v.parentElement === box.parentElement);
+    const alto = () => { const f = box.querySelector('iframe'); if (f) f.style.height = Math.max(480, window.innerHeight - box.getBoundingClientRect().top - 2) + 'px'; };
+    const abre = () => {
+      nav.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      otrasVistas().forEach(v => v.classList.add('pp-oculto')); box.style.display = '';
+      if (!box.querySelector('iframe')) box.innerHTML = `<iframe title="Pipeline" src="${urlPipeline()}" style="width:100%;border:0;display:block;background:#fff"></iframe>`;
+      alto();
+    };
+    btn.addEventListener('click', abre);
+    nav.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b === btn) return; box.style.display = 'none'; btn.classList.remove('active'); otrasVistas().forEach(v => v.classList.remove('pp-oculto')); });
+    window.addEventListener('resize', alto);
+    abre();   // el negocio abre en su Pipeline
+    return true;
+  }
+  // Sin permiso del reporte: solo el Pipeline del negocio, con su encabezado
+  function soloPipeline() {
+    document.body.innerHTML = '<nav class="switcher"><button type="button" class="active" data-view="pipeline">Pipeline</button></nav><div id="view-pipeline"></div>';
+    document.body.style.cssText = 'margin:0;font-family:Outfit,Segoe UI,sans-serif';
+    const st = document.createElement('style');
+    st.textContent = '.switcher{display:flex;background:#fff;border-bottom:1px solid #e2e4f2;padding:0 16px}.switcher button{font:600 13.5px Outfit,sans-serif;padding:10px 14px 8px;border:0;background:none;color:#1414B8;border-bottom:3px solid #f22230}';
+    document.head.appendChild(st);
+    encabezado();
+    const box = document.getElementById('view-pipeline');
+    box.innerHTML = `<iframe title="Pipeline" src="${urlPipeline()}" style="width:100%;border:0;display:block"></iframe>`;
+    const f = box.querySelector('iframe'), alto = () => { f.style.height = (window.innerHeight - box.getBoundingClientRect().top - 2) + 'px'; };
+    alto(); window.addEventListener('resize', alto);
+  }
+
   // ---------- botón de regreso a la casa ----------
   function botonCasa() {
     if (window.top !== window) return;   // dentro de la casa ya hay barra
@@ -380,11 +429,11 @@
     limpia();
     new MutationObserver(limpia).observe(document.body, { childList: true, subtree: true });
   }
-  const TIT_SEG = { 'seg-congruencia': 'Indicadores de congruencia', 'seg-rutinas': 'Rutinas de seguridad', 'seg-agenda': 'Agenda de líderes' };
+  const TIT_SEG = { 'seg-congruencia': ['Ejerciendo liderazgo', 'Rutinas de seguridad'], 'seg-agenda': ['Agenda de líderes', 'Seguridad · Construcción'] };
   function tituloSeguridad() {
     if (!TIT_SEG[APP]) return;
     const t = document.querySelector('.hdr .ttl'), sb = document.querySelector('.hdr .sub');
-    if (t) t.textContent = TIT_SEG[APP]; if (sb) sb.textContent = 'Seguridad · Construcción';
+    if (t) t.textContent = TIT_SEG[APP][0]; if (sb) sb.textContent = TIT_SEG[APP][1];
   }
   function despues() {
     botonCasa();
@@ -397,6 +446,7 @@
       if (b) b.addEventListener('click', () => setTimeout(panelArchivos, 50));
     }
     if (APP === 'reporte' || APP === 'soluciones') { let n = 0; const t = setInterval(() => { if (pestanaPpto() || ++n > 60) clearInterval(t); }, 250); }
+    if (NEGOCIO[APP] && rolPipe) { let n = 0; const t = setInterval(() => { if (pestanaPipeline() || ++n > 60) clearInterval(t); }, 250); }
   }
   document.addEventListener('DOMContentLoaded', () => {
     despues();
@@ -405,5 +455,5 @@
       if (b) b.addEventListener('click', () => setTimeout(panelArchivos, 50));
     }
   });
-  window.PUENTE = { APP, rol, persona, despues, G, guardarReporteHTML };
+  window.PUENTE = { APP, rol, persona, despues, G, guardarReporteHTML, soloPipeline: soloPipe ? soloPipeline : null };
 })();

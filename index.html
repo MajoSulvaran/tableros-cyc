@@ -207,7 +207,8 @@ function hace(iso) {
 }
 const iniciales = n => String(n || '').split(' ').filter(w => /^[A-ZÁÉÍÓÚÑ]/.test(w)).slice(0, 2).map(w => w[0]).join('');
 const rol = id => S.persona ? ((S.persona.apps || {})[id] || (S.persona.admin ? 'ver' : null)) : null;
-const misApps = () => T.APPS.filter(a => !a.oculto && rol(a.id));   // el Ppto. 2027 vive dentro de Soluciones
+// Los negocios se ven con el permiso del reporte o con el del pipeline (que es su primera pestaña)
+const misApps = () => T.APPS.filter(a => !a.oculto && (rol(a.id) || (a.negocio && rol('pipeline'))));
 const infoApp = id => Object.assign({}, T.APPS.find(a => a.id === id) || T.PROXIMAS.find(a => a.id === id), ((S.dir && S.dir.apps) || {})[id] || {});
 function urlApp(a) { return /^\//.test(a.url) ? location.origin + a.url : new URL(a.url, location.href).href; }
 const mesAnterior = () => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); };
@@ -267,7 +268,6 @@ function pintaLado() {
   let h = `<div class="marca"><div class="logo"><i></i><i></i><i></i></div><div><h1>NUBE</h1><p>Construcción</p></div><button class="pin" data-plegar></button></div>
     <div class="buscar-lado" data-buscar>${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></div>
     ${n('inicio', 'inicio', ICON.inicio, 'Inicio')}
-    <div class="sep">Tableros</div>
     ${misApps().map((a, i, l) => (a.grupo && (!l[i - 1] || l[i - 1].grupo !== a.grupo) ? `<div class="sep-grupo">${esc(a.grupo)}</div>` : '')
       + n('app/' + a.id, 'app/' + a.id, `<i class="pt" style="background:${COLOR[a.id] || COLOR[a.icono] || '#1414B8'}"></i>`, a.nombre).replace('class="nav"', a.grupo ? 'class="nav en-grupo"' : 'class="nav"')
       + `<div class="sub-acc" data-sub="${a.id}"></div>`).join('')}
@@ -301,7 +301,7 @@ function ruta() {
   const h = (location.hash || '#inicio').slice(1);
   const [v, id] = h.split('/');
   aplicaMenu();
-  if (v === 'app' && rol(id)) { marcaNav('app/' + id); return vistaApp(id); }
+  if (v === 'app' && (rol(id) || ((T.APPS.find(a => a.id === id) || {}).negocio && rol('pipeline')))) { marcaNav('app/' + id); return vistaApp(id); }
   if (v === 'archivos' && rol('reporte') === 'editar') { marcaNav('archivos'); return vistaArchivos(); }
   if (v === 'actividad') { marcaNav('actividad'); return vistaActividad(); }
   if (v === 'ruta') { marcaNav('ruta'); return vistaRuta(); }

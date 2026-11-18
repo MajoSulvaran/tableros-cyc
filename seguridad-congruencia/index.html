@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Indicadores de congruencia · NUBE</title>
+<title>Iniciativas de Congruencia · NUBE</title>
 <script src="../comun/tableros.js"></script>
 <script src="../comun/puente.js" data-app="seg-congruencia"></script>
 </head>
 <body style="font-family:Outfit,'Segoe UI',sans-serif;color:#565b85;padding:48px;text-align:center">
-<p>Cargando Indicadores de congruencia…</p>
+<p>Cargando Iniciativas de Congruencia…</p>
 <script>
 /* El reporte (con sus datos) vive en el repositorio privado: reporte-soluciones/reporte.html.
    Esta página solo lo trae con la sesión de NUBE y lo muestra. */
@@ -17,7 +17,7 @@
     const html = await PUENTE.G.texto(TABLEROS.CFG.REPO_DATOS, 'seguridad/congruencia.html');
     if (!html) { document.body.innerHTML = '<h2 style="color:#1414B8;margin-top:12vh">Indicadores de congruencia</h2><p>Este apartado está en construcción. Cuando esté listo, se sube desde NUBE con <b>⇪ Nueva versión</b> en el menú.</p>'; return; }
     // Lo que el tablero guarda "en este navegador" se comparte con todo el equipo (repositorio privado)
-    const MEM = { clave: 'rutinas_seg_construccion_v1', ruta: 'seguridad/congruencia_datos.json' };
+    const MEM = { clave: 'congruencia_construccion_v2', ruta: 'seguridad/congruencia_v2_datos.json' };
     let datos = null; try { datos = await PUENTE.G.json(TABLEROS.CFG.REPO_DATOS, MEM.ruta); } catch (e) { /* sin acción */ }
     const gi = Storage.prototype.getItem, si = Storage.prototype.setItem;
     Storage.prototype.getItem = function (k) {

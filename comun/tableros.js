@@ -19,38 +19,34 @@
 
   // Catálogo de apps. Lo editable (estado, ruta a Datacreto, descripción) vive en directorio.json
   const APPS = [
-    { id: 'pipeline', nombre: 'Pipeline', area: 'Infraestructura · CN · Soluciones', icono: 'pipeline',
+    // El Pipeline ya no es apartado propio: es la primera pestaña de cada negocio (se queda para permisos y sesión)
+    { id: 'pipeline', oculto: true, nombre: 'Pipeline', area: 'Negocios', icono: 'pipeline',
       desc: 'Obras, licitaciones, mensualizado y presupuesto 2027', url: '/pipeline-construccion/', repo: 'pipeline-datos', ruta: 'data.json',
       estado: 'En uso', datacreto: 'Por enviar' },
-    { id: 'reporte', nombre: 'Infraestructura', area: 'Infraestructura Pesada', icono: 'reporte',
-      desc: 'Resultados del mes, Best Estimate, capital de trabajo y Ppto. 2027', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion', privado: 'reporte-construccion/reporte.html',
+    { id: 'reporte', grupo: 'Negocios', negocio: 'Infraestructura Pesada', nombre: 'Infraestructura', area: 'Infraestructura Pesada', icono: 'reporte',
+      desc: 'Pipeline, resultados del mes, Best Estimate, capital de trabajo y Ppto. 2027', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion', privado: 'reporte-construccion/reporte.html',
       estado: 'En uso', datacreto: 'Entregado a Alan' },
-    { id: 'soluciones', nombre: 'Soluciones Integrales', area: 'Soluciones Integrales', icono: 'soluciones',
-      desc: 'Colocación, Best Estimate, precios, capital de trabajo y Ppto. 2027', url: 'reporte-soluciones/', repo: CFG.REPO_DATOS, ruta: 'reporte-soluciones', privado: 'reporte-soluciones/reporte.html',
+    { id: 'soluciones', grupo: 'Negocios', negocio: 'Soluciones', nombre: 'Soluciones Integrales', area: 'Soluciones Integrales', icono: 'soluciones',
+      desc: 'Pipeline, colocación, Best Estimate, precios, capital de trabajo y Ppto. 2027', url: 'reporte-soluciones/', repo: CFG.REPO_DATOS, ruta: 'reporte-soluciones', privado: 'reporte-soluciones/reporte.html',
       estado: 'En construcción', datacreto: 'Por enviar' },
-    { id: 'cn', nombre: 'Cuentas Nacionales', area: 'Cuentas Nacionales', icono: 'cn',
-      desc: 'Pipeline de la Dirección de Cuentas Nacionales: obras, mensualizado y licitaciones', url: '/pipeline-construccion/?direccion=Cuentas%20Nacionales', repo: 'pipeline-datos', ruta: 'data.json',
-      estado: 'En uso', datacreto: 'Por enviar' },
+    { id: 'cn', grupo: 'Negocios', negocio: 'Cuentas Nacionales', nombre: 'Cuentas Nacionales', area: 'Cuentas Nacionales', icono: 'cn',
+      desc: 'Pipeline, holdings, colocación, precios, Best Estimate y cartera', url: 'cuentas-nacionales/', repo: CFG.REPO_DATOS, ruta: 'cuentas-nacionales', privado: 'cuentas-nacionales/reporte.html',
+      estado: 'En construcción', datacreto: 'Por enviar' },
     { id: 'presupuesto', oculto: true, nombre: 'Ppto. 2027 · Soluciones', area: 'Soluciones Integrales', icono: 'presupuesto',
       desc: 'Ppto 2027 por región, proyectos ancla y objetivos por plaza', url: '/presupuesto-2027/', repo: 'presupuesto-2027-datos', ruta: 'presupuesto.json',
       estado: 'En uso', datacreto: 'Por enviar' },
-    { id: 'flota', nombre: 'Mapeo de flota', area: 'Construcción', icono: 'flota',
-      desc: 'Equipos por tipo, demanda del pipeline y propuesta de desincorporación', url: 'mapeo-flota/', repo: CFG.REPO_DATOS, ruta: 'mapeo-flota', privado: 'mapeo-flota/reporte.html', extra: [{ ruta: 'mapeo-flota/presentacion.html', et: 'Nueva presentación' }],
-      estado: 'En uso', datacreto: 'Por enviar' }
-,
-    { id: 'pep', nombre: 'PEP', area: 'Concreto', icono: 'pep',
+    { id: 'pep', grupo: 'Desarrollo de segmento', nombre: 'PEP/PEC', area: 'Desarrollo de segmento', icono: 'pep',
       desc: 'Plan Estratégico de Plaza 2027 · resultados del ejercicio nacional', url: 'pep/', repo: CFG.REPO_DATOS, ruta: 'pep', privado: 'pep/reporte.html',
-      estado: 'En uso', datacreto: 'Por enviar' }
-,
-    { id: 'seg-congruencia', grupo: 'Seguridad', nombre: 'Indicadores de congruencia', area: 'Seguridad', icono: 'seguridad',
-      desc: 'Liderazgo en Seguridad: cumplimiento semanal por gerente, ubicación y persona', url: 'seguridad-congruencia/', repo: CFG.REPO_DATOS, ruta: 'seguridad',
-      privado: 'seguridad/congruencia.html', memoria: { clave: 'rutinas_seg_construccion_v1', ruta: 'seguridad/congruencia_datos.json' }, estado: 'En uso', datacreto: 'Por enviar' },
-    { id: 'seg-rutinas', grupo: 'Seguridad', nombre: 'Rutinas de seguridad', area: 'Seguridad', icono: 'seguridad',
-      desc: 'Rutinas de seguridad de Construcción', url: 'seguridad-rutinas/', repo: CFG.REPO_DATOS, ruta: 'seguridad', privado: 'seguridad/rutinas.html',
-      estado: 'En construcción', datacreto: '' },
+      estado: 'En uso', datacreto: 'Por enviar' },
+    { id: 'seg-congruencia', grupo: 'Seguridad', nombre: 'Iniciativas de Congruencia', area: 'Seguridad', icono: 'seguridad',
+      desc: 'Ejerciendo liderazgo · rutinas de seguridad por gerente, ubicación y persona', url: 'seguridad-congruencia/', repo: CFG.REPO_DATOS, ruta: 'seguridad',
+      privado: 'seguridad/congruencia.html', memoria: { clave: 'congruencia_construccion_v2', ruta: 'seguridad/congruencia_v2_datos.json' }, estado: 'En uso', datacreto: 'Por enviar' },
     { id: 'seg-agenda', grupo: 'Seguridad', nombre: 'Agenda de líderes', area: 'Seguridad', icono: 'seguridad',
       desc: 'Agenda de líderes en seguridad', url: 'seguridad-agenda/', repo: CFG.REPO_DATOS, ruta: 'seguridad', privado: 'seguridad/agenda.html',
-      estado: 'En construcción', datacreto: '' }
+      estado: 'En construcción', datacreto: '' },
+    { id: 'flota', grupo: 'Mantenimiento', nombre: 'Mapeo de flota', area: 'Mantenimiento', icono: 'flota',
+      desc: 'Equipos por tipo, demanda del pipeline y propuesta de desincorporación', url: 'mapeo-flota/', repo: CFG.REPO_DATOS, ruta: 'mapeo-flota', privado: 'mapeo-flota/reporte.html', extra: [{ ruta: 'mapeo-flota/presentacion.html', et: 'Nueva presentación' }],
+      estado: 'En uso', datacreto: 'Por enviar' }
   ];
   const PROXIMAS = [
     { id: 'pec', nombre: 'PEC 2027', area: 'Construcción', desc: 'Plan de Estrategia de Construcción', estado: 'En construcción', datacreto: 'Con Alan' },
