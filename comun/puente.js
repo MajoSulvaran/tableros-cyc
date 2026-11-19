@@ -15,7 +15,8 @@
   const ses = T.sesion(), per = T.permisos();
   const rol = T.rolEn(APP);
   // Negocios: la primera pestaña es su Pipeline; con solo el permiso del pipeline se entra a esa pestaña
-  const NEGOCIO = { reporte: 'Infraestructura Pesada', soluciones: 'Soluciones', cn: 'Cuentas Nacionales' };
+  // Por ahora solo Infraestructura y Cuentas Nacionales llevan su Pipeline (Soluciones todavía no)
+  const NEGOCIO = { reporte: 'Infraestructura Pesada', cn: 'Cuentas Nacionales' };
   const rolPipe = T.rolEn('pipeline');
   const soloPipe = !!(NEGOCIO[APP] && !rol && rolPipe);
   const casa = '../?app=' + encodeURIComponent(APP || '');
