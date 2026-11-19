@@ -370,34 +370,74 @@
   }
 
 
-  // ---------- Pestaña Pipeline (primera) en cada negocio ----------
+  // ---------- Pestañas que NUBE agrega a un reporte (Pipeline, Chequeo semanal) ----------
+  // Un solo control para todas: la activa se muestra y las vistas del reporte se esconden con una clase,
+  // sin tocar cómo las maneja el propio reporte.
   const urlPipeline = () => `${location.origin}/pipeline-construccion/?direccion=${encodeURIComponent(NEGOCIO[APP])}&embebido=1`;
-  function pestanaPipeline() {
-    const nav = document.querySelector('.switcher');
-    if (!nav || document.getElementById('view-pipeline')) return !!nav;
-    const otros = [...nav.querySelectorAll('button')];
-    if (!otros.length) return false;
-    const attr = otros[0].hasAttribute('data-tab') ? 'data-tab' : 'data-view';
-    const btn = document.createElement('button'); btn.type = 'button'; btn.setAttribute(attr, 'pipeline'); btn.textContent = 'Pipeline';
-    nav.insertBefore(btn, otros[0]);
-    const primera = document.querySelector('[id^="view-"]');
-    const box = document.createElement('div'); box.id = 'view-pipeline'; box.style.display = 'none';
-    primera.parentElement.insertBefore(box, primera);
+  const EXTRAS = [];
+  function controlExtras(nav) {
+    if (nav.__extras) return; nav.__extras = true;
     if (!document.getElementById('ppOcultoCss')) { const st = document.createElement('style'); st.id = 'ppOcultoCss'; st.textContent = '.pp-oculto{display:none!important}'; document.head.appendChild(st); }
-    // Mientras el Pipeline está abierto, las demás vistas se esconden con una clase (sin tocar cómo las maneja el reporte)
-    const otrasVistas = () => [...document.querySelectorAll('[id^="view-"]')].filter(v => v !== box && v.parentElement === box.parentElement);
-    const alto = () => { const f = box.querySelector('iframe'); if (f) f.style.height = Math.max(480, window.innerHeight - box.getBoundingClientRect().top - 2) + 'px'; };
-    const abre = () => {
-      nav.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
-      otrasVistas().forEach(v => v.classList.add('pp-oculto')); box.style.display = '';
+    nav.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      const x = EXTRAS.find(z => z.btn === b);
+      const vistas = [...document.querySelectorAll('[id^="view-"]')].filter(v => !EXTRAS.some(z => z.box === v));
+      EXTRAS.forEach(z => { z.box.style.display = z === x ? 'block' : 'none'; z.btn.classList.toggle('active', z === x); });
+      if (x) { nav.querySelectorAll('button').forEach(o => { if (o !== b) o.classList.remove('active'); }); vistas.forEach(v => v.classList.add('pp-oculto')); x.abrir(); }
+      else vistas.forEach(v => v.classList.remove('pp-oculto'));
+    });
+  }
+  function pestanaExtra(id, etiqueta, despuesDe, abrir) {
+    const nav = document.querySelector('.switcher');
+    if (!nav || document.getElementById('view-' + id)) return !!nav;
+    const otros = [...nav.querySelectorAll('button')]; if (!otros.length) return false;
+    const attr = otros[0].hasAttribute('data-tab') ? 'data-tab' : 'data-view';
+    const btn = document.createElement('button'); btn.type = 'button'; btn.setAttribute(attr, id); btn.textContent = etiqueta;
+    const ref = despuesDe && nav.querySelector(`[${attr}="${despuesDe}"]`);
+    nav.insertBefore(btn, ref ? ref.nextSibling : otros[0]);
+    const primera = [...document.querySelectorAll('[id^="view-"]')].find(v => !EXTRAS.some(z => z.box === v));
+    const box = document.createElement('div'); box.id = 'view-' + id; box.style.display = 'none';
+    primera.parentElement.insertBefore(box, primera);
+    const x = { id, btn, box, abrir: () => abrir(box) };
+    EXTRAS.push(x); controlExtras(nav);
+    return x;
+  }
+  const altoMarco = box => { const f = box.querySelector('iframe'); if (f) f.style.height = Math.max(480, window.innerHeight - box.getBoundingClientRect().top - 2) + 'px'; };
+  window.addEventListener('resize', () => EXTRAS.forEach(z => { if (z.box.style.display !== 'none') altoMarco(z.box); }));
+  function pestanaPipeline() {
+    const x = pestanaExtra('pipeline', 'Pipeline', null, box => {
       if (!box.querySelector('iframe')) box.innerHTML = `<iframe title="Pipeline" src="${urlPipeline()}" style="width:100%;border:0;display:block;background:#fff"></iframe>`;
-      alto();
-    };
-    btn.addEventListener('click', abre);
-    nav.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b === btn) return; box.style.display = 'none'; btn.classList.remove('active'); otrasVistas().forEach(v => v.classList.remove('pp-oculto')); });
-    window.addEventListener('resize', alto);
-    abre();   // el negocio abre en su Pipeline
-    return true;
+      altoMarco(box);
+    });
+    if (x && x.btn) x.btn.click();   // el negocio abre en su Pipeline
+    return !!x;
+  }
+  // Chequeo semanal (Infraestructura): el tablero vive en reporte-construccion/chequeo.html y sus datos
+  // actualizados en chequeo_datos.json, para que todo el equipo vea la misma versión.
+  function pestanaChequeo() {
+    const x = pestanaExtra('chequeo', 'Chequeo semanal', 'pipeline', async box => {
+      if (box.dataset.listo) { altoMarco(box); return; }
+      box.dataset.listo = '1';
+      box.innerHTML = '<p style="padding:24px;color:#565b85">Cargando el Chequeo semanal…</p>';
+      try {
+        const [html, datos] = await Promise.all([G.texto(REPO, 'reporte-construccion/chequeo.html'), G.json(REPO, 'reporte-construccion/chequeo_datos.json').catch(() => null)]);
+        if (!html) { box.innerHTML = '<p style="padding:24px;color:#565b85">Todavía no se sube el Chequeo semanal. Súbelo desde NUBE con "Nuevo chequeo semanal".</p>'; return; }
+        const url = datos ? URL.createObjectURL(new Blob([JSON.stringify(datos)], { type: 'application/json' })) : null;
+        window.__guardarChequeo = txt => {
+          if (rol !== 'editar') return;
+          G.guardar(REPO, 'reporte-construccion/chequeo_datos.json', txt, `${corto}: actualizó el Chequeo semanal`).catch(e => alert('No se pudo guardar el Chequeo semanal en NUBE: ' + e.message));
+        };
+        const pre = `<script>window.TABLERO_CONFIG=${JSON.stringify({ urlDatos: url, puedeEditar: rol === 'editar' })};
+          (function(){var si=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){si.call(this,k,v);if(this===window.sessionStorage&&k==='chequeo-sesion'&&parent.__guardarChequeo)parent.__guardarChequeo(v);};})();<\/script>
+          <style>.cab .marca{display:none!important}.cab{padding-top:6px!important;padding-bottom:6px!important}</style>`;
+        const i = html.indexOf('<head>');
+        const doc = i >= 0 ? html.slice(0, i + 6) + pre + html.slice(i + 6) : pre + html;
+        box.innerHTML = '<iframe title="Chequeo semanal" style="width:100%;border:0;display:block;background:#fff"></iframe>';
+        box.querySelector('iframe').srcdoc = doc;
+        altoMarco(box);
+      } catch (e) { box.dataset.listo = ''; box.innerHTML = '<p style="padding:24px;color:#8a4b07">No se pudo cargar el Chequeo semanal: ' + e.message + '</p>'; }
+    });
+    return !!x;
   }
   // Sin permiso del reporte: solo el Pipeline del negocio, con su encabezado
   function soloPipeline() {
@@ -433,6 +473,7 @@
   const TIT_SEG = { 'seg-congruencia': ['Ejerciendo liderazgo', 'Rutinas de seguridad'], 'seg-agenda': ['Agenda de líderes', 'Seguridad · Construcción'] };
   function tituloSeguridad() {
     if (!TIT_SEG[APP]) return;
+    const st = document.createElement('style'); st.textContent = '#gPer{overflow-y:auto;overflow-x:hidden}#lPer{flex:none;position:relative;background:#fff;padding-top:6px}.ud{min-height:46px}'; document.head.appendChild(st);
     const t = document.querySelector('.hdr .ttl'), sb = document.querySelector('.hdr .sub');
     if (t) t.textContent = TIT_SEG[APP][0]; if (sb) sb.textContent = TIT_SEG[APP][1];
   }
@@ -447,6 +488,7 @@
       if (b) b.addEventListener('click', () => setTimeout(panelArchivos, 50));
     }
     if (APP === 'reporte' || APP === 'soluciones') { let n = 0; const t = setInterval(() => { if (pestanaPpto() || ++n > 60) clearInterval(t); }, 250); }
+    if (APP === 'reporte' && rol) { let n = 0; const t = setInterval(() => { if (pestanaChequeo() || ++n > 60) clearInterval(t); }, 250); }
     if (NEGOCIO[APP] && rolPipe) { let n = 0; const t = setInterval(() => { if (pestanaPipeline() || ++n > 60) clearInterval(t); }, 250); }
   }
   document.addEventListener('DOMContentLoaded', () => {

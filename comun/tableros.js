@@ -24,7 +24,7 @@
       desc: 'Obras, licitaciones, mensualizado y presupuesto 2027', url: '/pipeline-construccion/', repo: 'pipeline-datos', ruta: 'data.json',
       estado: 'En uso', datacreto: 'Por enviar' },
     { id: 'reporte', grupo: 'Negocios', negocio: 'Infraestructura Pesada', nombre: 'Infraestructura', area: 'Infraestructura Pesada', icono: 'reporte',
-      desc: 'Pipeline, resultados del mes, Best Estimate, capital de trabajo y Ppto. 2027', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion', privado: 'reporte-construccion/reporte.html',
+      desc: 'Pipeline, chequeo semanal, resultados del mes, Best Estimate, capital de trabajo y Ppto. 2027', url: 'reporte-construccion/', repo: CFG.REPO_DATOS, ruta: 'reporte-construccion', privado: 'reporte-construccion/reporte.html', extra: [{ ruta: 'reporte-construccion/chequeo.html', et: 'Nuevo chequeo semanal' }],
       estado: 'En uso', datacreto: 'Entregado a Alan' },
     { id: 'soluciones', grupo: 'Negocios', nombre: 'Soluciones Integrales', area: 'Soluciones Integrales', icono: 'soluciones',
       desc: 'Colocación, Best Estimate, precios, capital de trabajo y Ppto. 2027', url: 'reporte-soluciones/', repo: CFG.REPO_DATOS, ruta: 'reporte-soluciones', privado: 'reporte-soluciones/reporte.html',
