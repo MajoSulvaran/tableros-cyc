@@ -276,7 +276,10 @@
   // ---------- Encabezado único (estilo Ppto 2027) y limpieza visual por tablero ----------
   const ENC = {
     reporte: { t: 'Infraestructura', s: 'Infraestructura Pesada', antes: '.topbar',
-      css: '.topbar .crumb,#pageTitle{display:none!important}.topbar{padding-top:0!important}.switcher button[data-view="venta"]{display:none!important}' },
+      css: '.topbar .crumb,#pageTitle{display:none!important}.topbar{padding-top:0!important}.switcher button[data-view="venta"]{display:none!important}'
+        + '.tabrow{flex-wrap:nowrap!important;gap:8px!important;align-items:center!important}.tabrow .switcher{flex:1 1 auto;min-width:0}'
+        + '.tabrow .switcher button{padding:9px 11px 8px!important}.tabrow #btnPrint{margin:0!important;padding:3px 8px!important;flex:none}.tabrow #btnActualizar{flex:none;margin-left:4px}'
+        + '#pageSub:empty{display:none!important}.topbar p{padding:3px 0 5px!important;min-height:0!important}.extra-on #pageSub{display:none!important}' },
     soluciones: { t: 'Soluciones Integrales', s: 'Reporte de resultados', antes: '.switcher',
       css: `header.hero{display:none!important}
         .switcher{background:#fff!important;box-shadow:0 1px 0 #e2e4f2!important;padding:0 16px!important;gap:2px!important}
@@ -383,6 +386,7 @@
       const x = EXTRAS.find(z => z.btn === b);
       const vistas = [...document.querySelectorAll('[id^="view-"]')].filter(v => !EXTRAS.some(z => z.box === v));
       EXTRAS.forEach(z => { z.box.style.display = z === x ? 'block' : 'none'; z.btn.classList.toggle('active', z === x); });
+      document.body.classList.toggle('extra-on', !!x);
       if (x) { nav.querySelectorAll('button').forEach(o => { if (o !== b) o.classList.remove('active'); }); vistas.forEach(v => v.classList.add('pp-oculto')); x.abrir(); }
       else vistas.forEach(v => v.classList.remove('pp-oculto'));
     });
