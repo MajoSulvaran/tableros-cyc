@@ -16,6 +16,22 @@
   try {
     const html = await PUENTE.G.texto(TABLEROS.CFG.REPO_DATOS, 'seguridad/agenda.html');
     if (!html) { document.body.innerHTML = '<h2 style="color:#1414B8;margin-top:12vh">Agenda de líderes</h2><p>Este apartado está en construcción. Cuando esté listo, se sube desde NUBE con <b>⇪ Nueva versión</b> en el menú.</p>'; return; }
+    // Lo que el tablero guarda "en este navegador" se comparte con todo el equipo (repositorio privado)
+    const MEM = { clave: 'agenda_lideres_v1', ruta: 'seguridad/agenda_datos.json' };
+    let datos = null; try { datos = await PUENTE.G.json(TABLEROS.CFG.REPO_DATOS, MEM.ruta); } catch (e) { /* sin acción */ }
+    const gi = Storage.prototype.getItem, si = Storage.prototype.setItem;
+    Storage.prototype.getItem = function (k) {
+      if (this === window.localStorage && k === MEM.clave && datos) { const loc = JSON.parse(gi.call(this, k) || '{}'); return JSON.stringify(Object.assign({}, loc, datos)); }
+      return gi.call(this, k);
+    };
+    let t = null;
+    Storage.prototype.setItem = function (k, v) {
+      si.call(this, k, v);
+      if (this === window.localStorage && k === MEM.clave && PUENTE.rol === 'editar') {
+        clearTimeout(t); t = setTimeout(() => PUENTE.G.actualizarJSON(TABLEROS.CFG.REPO_DATOS, MEM.ruta, act => Object.assign({}, act || {}, JSON.parse(v)),
+          `${(PUENTE.persona || '').split(' ').slice(0, 2).join(' ')}: actualizó la Agenda de líderes`).then(d => { datos = d; }).catch(e => console.warn(e)), 1500);
+      }
+    };
     document.open(); document.write(html); document.close();
     PUENTE.despues();
   } catch (e) { document.body.innerHTML = '<h2 style="color:#0003aa">No se pudo cargar el reporte</h2><p>' + String(e.message).replace(/</g, '&lt;') + '</p>'; }

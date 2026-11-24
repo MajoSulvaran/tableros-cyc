@@ -42,8 +42,8 @@
       desc: 'Ejerciendo liderazgo · rutinas de seguridad por gerente, ubicación y persona', url: 'seguridad-congruencia/', repo: CFG.REPO_DATOS, ruta: 'seguridad',
       privado: 'seguridad/congruencia.html', memoria: { clave: 'congruencia_construccion_v2', ruta: 'seguridad/congruencia_v2_datos.json' }, estado: 'En uso', datacreto: 'Por enviar' },
     { id: 'seg-agenda', grupo: 'Seguridad', nombre: 'Agenda de líderes', area: 'Seguridad', icono: 'seguridad',
-      desc: 'Agenda de líderes en seguridad', url: 'seguridad-agenda/', repo: CFG.REPO_DATOS, ruta: 'seguridad', privado: 'seguridad/agenda.html',
-      estado: 'En construcción', datacreto: '' },
+      desc: 'Indicadores integrales VFL, NMHA y Toma 5 por gerencia, proyecto y jefe, y cuadre de personal meta', url: 'seguridad-agenda/', repo: CFG.REPO_DATOS, ruta: 'seguridad', privado: 'seguridad/agenda.html',
+      memoria: { clave: 'agenda_lideres_v1', ruta: 'seguridad/agenda_datos.json' }, estado: 'En uso', datacreto: 'Por enviar' },
     { id: 'flota', grupo: 'Mantenimiento', nombre: 'Mapeo de flota', area: 'Mantenimiento', icono: 'flota',
       desc: 'Equipos por tipo, demanda del pipeline y propuesta de desincorporación', url: 'mapeo-flota/', repo: CFG.REPO_DATOS, ruta: 'mapeo-flota', privado: 'mapeo-flota/reporte.html', extra: [{ ruta: 'mapeo-flota/presentacion.html', et: 'Nueva presentación' }],
       estado: 'En uso', datacreto: 'Por enviar' }

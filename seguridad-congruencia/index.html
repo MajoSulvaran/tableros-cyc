@@ -29,7 +29,7 @@
       si.call(this, k, v);
       if (this === window.localStorage && k === MEM.clave && PUENTE.rol === 'editar') {
         clearTimeout(t); t = setTimeout(() => PUENTE.G.actualizarJSON(TABLEROS.CFG.REPO_DATOS, MEM.ruta, act => Object.assign({}, act || {}, JSON.parse(v)),
-          `${(PUENTE.persona || '').split(' ').slice(0, 2).join(' ')}: cargó información de ${'Indicadores de congruencia'}`).then(d => { datos = d; }).catch(e => console.warn(e)), 1500);
+          `${(PUENTE.persona || '').split(' ').slice(0, 2).join(' ')}: cargó información de Iniciativas de Congruencia`).then(d => { datos = d; }).catch(e => console.warn(e)), 1500);
       }
     };
     document.open(); document.write(html); document.close();
