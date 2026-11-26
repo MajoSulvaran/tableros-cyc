@@ -147,6 +147,9 @@ a.act-item.para:hover{background:var(--fondo)}
 .app.compacta .lado .marca{flex-direction:column;gap:8px;padding-bottom:8px}
 .app.compacta .nav{justify-content:center;padding:9px 0}
 .nav.sub-admin{font-size:12px;color:var(--t3)}
+.liga{display:block;font-size:11.5px;color:var(--t2);text-decoration:none;margin:0 0 1px 30px;padding:2px 8px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.liga:hover{background:var(--fondo);color:var(--azul)}
+.app.compacta .liga{display:none}
 .sep-grupo{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);font-weight:700;padding:8px 10px 2px 10px}
 .nav.en-grupo{padding-left:22px}
 .app.compacta .sep-grupo{display:none}
@@ -193,11 +196,17 @@ const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
 const NOMBRES_BASE = ["Alejandro Jimenez Correa", "Alejandro Serrano Herrera", "Alejandro Treviño Cansino", "Ana Maria Fragoso Lejarza", "Angel Pasta Caballero", "Araceli Samantha Mendoza Acero", "Armando Albarran Luna", "Carlos Antonio Ramos Galvan", "Daniel David Lopez Gregorio", "Daniela Reyna Lozano", "Enrique Chirino Andalco", "Enrique Rodríguez Quintanilla", "Erick Arturo Gonzalez Hernandez", "Erick Salvador Rodriguez Altamirano", "Fernando Elizondo Garcia", "Fernando Reyes Bojorges", "Francisco Ruiz", "Gerardo Castellanos Gomez", "Guillermo Isauro Laserna Peraza", "Gustavo Flores Soto", "Hugo Alberto Ramírez Hanon", "Jesús Guadalupe Piña Carrillo", "Jose Daniel Damazo Ordoñez", "José Manuel Soberanes Sanchez", "José Miguel López Gosain", "Luis Carlos Delgado Chavez", "Manuel Humberto Ortiz M.", "Marcelo Montelongo Cepeda", "Maria De Los Angeles Salazar Jimenez", "Maria Jose Castro Cervantes", "Maribel Lorencez Romero", "María Fernanda Ramírez Castillo", "María José Sulvarán Álvarez", "Nancy Lizbeth Acosta Lugo", "Sahyra Araceli Arceo Huerta", "Uriel Cruz Acosta", "Valeria Estefany Garcia Namour", "Valeria Hernandez Hinojosa", "Vency Jeanett Marin Barranco", "Yaressi Alejandra Treviño Garza"];   // para el acceso; la lista vigente vive en directorio.json
-const PRESENTACIONES_BASE = [
-  { t: 'Semanal Seguridad', d: 'Seguridad · Construcción', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/josemiguel_lopezg_cemex_com/Documents/Cemex/16.%20Seguridad/Semanal%20Seguridad%20Construcci%C3%B3n.pptx?d=wc80616b328ad4fec9c4dd840aea0fb9f&csf=1&web=1&e=Ohsule' },
-  { t: 'Quincenal Construcción', d: 'Junta quincenal', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/valeria_hernandez_cemex_com/_layouts/15/Doc.aspx?sourcedoc=%7B70735AD9-D1B8-400B-9911-387122D1CDA9%7D&file=Presentaci%25u00f3n%20Quincenal%20Construcci%25u00f3n.pptx&action=edit&mobileredirect=true' }
+// Ligas externas de cada apartado (Excel, Power BI, presentaciones): se ven debajo del apartado al que pertenecen
+const LIGAS_BASE = [
+  { app: 'reporte', t: 'Presentación quincenal', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/valeria_hernandez_cemex_com/_layouts/15/Doc.aspx?sourcedoc=%7B70735AD9-D1B8-400B-9911-387122D1CDA9%7D&file=Presentaci%25u00f3n%20Quincenal%20Construcci%25u00f3n.pptx&action=edit&mobileredirect=true' },
+  { app: 'seg-congruencia', t: 'Power BI · Iniciativas de Congruencia', url: 'https://app.powerbi.com/groups/me/reports/431a03ca-cd67-450f-b586-1db86f84c655/3f142c94adadd5e29c31?ctid=6ee19001-d0c4-45f8-af8b-ff00f16d07e1&experience=power-bi&clientSideAuth=0' },
+  { app: 'seg-congruencia', t: 'Presentación semanal de seguridad', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/josemiguel_lopezg_cemex_com/Documents/Cemex/16.%20Seguridad/Semanal%20Seguridad%20Construcci%C3%B3n.pptx?d=wc80616b328ad4fec9c4dd840aea0fb9f&csf=1&web=1&e=Ohsule' },
+  { app: 'seg-agenda', t: 'Excel de responsables', url: 'https://cemex-my.sharepoint.com/:x:/p/josemiguel_lopezg/IQCC3ZeUc6r-TrPNeBrVK5xgATP8QBBVEaaoI5uRBcj-nlM?e=ELMoFT&CID=8de73b41-f67c-a069-c34d-ddc7dd1c6037' },
+  { app: 'seg-agenda', t: 'Power BI · Agenda de líderes', url: 'https://app.powerbi.com/groups/me/reports/3136be03-01c1-4c4a-a3d5-61d8ca09da53/77561c5b9f834f751d09?ctid=6ee19001-d0c4-45f8-af8b-ff00f16d07e1&experience=power-bi&clientSideAuth=0' },
+  { app: 'seg-agenda', t: 'Presentación semanal de seguridad', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/josemiguel_lopezg_cemex_com/Documents/Cemex/16.%20Seguridad/Semanal%20Seguridad%20Construcci%C3%B3n.pptx?d=wc80616b328ad4fec9c4dd840aea0fb9f&csf=1&web=1&e=Ohsule' }
 ];
-const presentaciones = () => (S.dir && Array.isArray(S.dir.presentaciones)) ? S.dir.presentaciones : PRESENTACIONES_BASE;
+const ligas = () => (S.dir && Array.isArray(S.dir.ligas)) ? S.dir.ligas : LIGAS_BASE;
+const ligasDe = id => ligas().filter(x => x.app === id);
 const COLOR = { pipeline: '#0003aa', reporte: '#f22230', presupuesto: '#0f766e', soluciones: '#c2410c', flota: '#15803d', pep: '#7c3aed', cn: '#0e9aa7', seguridad: '#e8a317', 'seg-congruencia': '#e8a317', 'seg-rutinas': '#e8a317', 'seg-agenda': '#e8a317' };
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 let S = { ses: null, per: null, dir: null, G: null, persona: null, commits: {}, obras: null };
@@ -276,10 +285,9 @@ function pintaLado() {
     ${n('inicio', 'inicio', ICON.inicio, 'Inicio')}
     ${misApps().map((a, i, l) => (a.grupo && (!l[i - 1] || l[i - 1].grupo !== a.grupo) ? `<div class="sep-grupo">${esc(a.grupo)}</div>` : '')
       + n('app/' + a.id, 'app/' + a.id, `<i class="pt" style="background:${COLOR[a.id] || COLOR[a.icono] || '#1414B8'}"></i>`, a.nombre).replace('class="nav"', a.grupo ? 'class="nav en-grupo"' : 'class="nav"')
+      + ligasDe(a.id).map(x => `<a class="liga" href="${esc(x.url)}" target="_blank" rel="noopener" title="Se abre en otra pestaña">↗ ${esc(x.t)}</a>`).join('')
       + `<div class="sub-acc" data-sub="${a.id}"></div>`).join('')}
-    <div class="sep-grupo">Presentaciones</div>
-    ${presentaciones().map(x => `<a class="nav en-grupo" href="${esc(x.url)}" target="_blank" rel="noopener" title="${esc(x.d || x.t)} · se abre en PowerPoint"><i class="pt" style="background:#c43e1c"></i><span>${esc(x.t)} ↗</span></a>`).join('')}
-    ${p.admin ? `<a class="nav en-grupo sub-admin" href="#presentaciones" data-nav="presentaciones"><span>+ Administrar ligas</span></a>` : ''}
+    ${p.admin ? `<a class="nav sub-admin" href="#ligas" data-nav="ligas"><span>+ Administrar ligas</span></a>` : ''}
     <div class="sep">Equipo</div>
     ${rol('reporte') === 'editar' ? n('archivos', 'archivos', ICON.archivos, 'Archivos del mes') : ''}
     ${n('actividad', 'actividad', ICON.actividad, 'Actividad')}
@@ -313,7 +321,7 @@ function ruta() {
   if (v === 'app' && (rol(id) || ((T.APPS.find(a => a.id === id) || {}).negocio && rol('pipeline')))) { marcaNav('app/' + id); return vistaApp(id); }
   if (v === 'archivos' && rol('reporte') === 'editar') { marcaNav('archivos'); return vistaArchivos(); }
   if (v === 'actividad') { marcaNav('actividad'); return vistaActividad(); }
-  if (v === 'presentaciones' && S.persona.admin) { marcaNav('presentaciones'); return vistaPresentaciones(); }
+  if (v === 'ligas' && S.persona.admin) { marcaNav('ligas'); return vistaLigas(); }
   if (v === 'ruta') { marcaNav('ruta'); return vistaRuta(); }
   if (v === 'respaldos' && S.persona.admin) { marcaNav('respaldos'); return vistaRespaldos(); }
   if (v === 'accesos' && S.persona.admin) { marcaNav('accesos'); return vistaAccesos(); }
@@ -537,24 +545,25 @@ async function vistaArchivos() {
 function descarga(blob, nombre) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800); }
 
 /* ================= PRESENTACIONES ================= */
-function vistaPresentaciones() {
-  const l = presentaciones().map(x => ({ ...x }));
+function vistaLigas() {
+  const l = ligas().map(x => ({ ...x }));
+  const apps = T.APPS.filter(a => !a.oculto);
   const pinta = () => {
-    $('#principal').innerHTML = `<div class="vista"><h2 class="saludo" style="font-size:24px">Presentaciones</h2>
-      <p class="sub">Ligas a los PowerPoint del equipo. Aparecen en el menú para todos; se abren en PowerPoint en línea con el permiso de SharePoint de cada quien.</p>
-      <div class="tabla-wrap"><table class="t"><thead><tr><th>Nombre</th><th>Descripción</th><th>Liga</th><th></th></tr></thead><tbody>
-      ${l.map((x, i) => `<tr><td><input type="text" data-i="${i}" data-c="t" value="${esc(x.t)}" style="width:100%"></td><td><input type="text" data-i="${i}" data-c="d" value="${esc(x.d || '')}" style="width:100%"></td>
-        <td><input type="text" data-i="${i}" data-c="url" value="${esc(x.url)}" style="width:100%"></td><td><button class="btn sm" data-quita="${i}">Quitar</button></td></tr>`).join('')}
-      </tbody></table></div>
-      <div class="herr" style="margin-top:12px"><button class="btn" id="presMas">+ Agregar liga</button><span class="esp"></span><button class="btn pri" id="presGuardar">Guardar</button></div></div>`;
-    document.querySelectorAll('[data-c]').forEach(inp => inp.oninput = () => { l[+inp.dataset.i][inp.dataset.c] = inp.value; });
+    $('#principal').innerHTML = `<div class="vista"><h2 class="saludo" style="font-size:24px">Ligas de cada apartado</h2>
+      <p class="sub">Excel, Power BI y presentaciones. Aparecen en el menú debajo del apartado que elijas y se abren con el permiso de SharePoint o Power BI de cada quien.</p>
+      <div class="tabla-wrap"><table class="t"><thead><tr><th>Apartado</th><th>Nombre</th><th>Liga</th><th></th></tr></thead><tbody>
+      ${l.map((x, i) => `<tr><td><select data-i="${i}" data-c="app">${apps.map(a => `<option value="${a.id}" ${a.id === x.app ? 'selected' : ''}>${esc(a.nombre)}</option>`).join('')}</select></td>
+        <td><input type="text" data-i="${i}" data-c="t" value="${esc(x.t)}" style="width:100%"></td><td><input type="text" data-i="${i}" data-c="url" value="${esc(x.url)}" style="width:100%"></td>
+        <td><button class="btn sm" data-quita="${i}">Quitar</button></td></tr>`).join('')}</tbody></table></div>
+      <div class="herr" style="margin-top:12px"><button class="btn" id="ligMas">+ Agregar liga</button><span class="esp"></span><button class="btn pri" id="ligGuardar">Guardar</button></div></div>`;
+    document.querySelectorAll('[data-c]').forEach(inp => inp.oninput = inp.onchange = () => { l[+inp.dataset.i][inp.dataset.c] = inp.value; });
     document.querySelectorAll('[data-quita]').forEach(b => b.onclick = () => { l.splice(+b.dataset.quita, 1); pinta(); });
-    $('#presMas').onclick = () => { l.push({ t: 'Nueva presentación', d: '', url: 'https://' }); pinta(); };
-    $('#presGuardar').onclick = async () => {
-      const limpias = l.filter(x => x.t.trim() && /^https?:\/\//.test(x.url.trim())).map(x => ({ t: x.t.trim(), d: (x.d || '').trim(), url: x.url.trim() }));
+    $('#ligMas').onclick = () => { l.push({ app: apps[0].id, t: 'Nueva liga', url: 'https://' }); pinta(); };
+    $('#ligGuardar').onclick = async () => {
+      const limpias = l.filter(x => x.t.trim() && /^https?:\/\//.test(x.url.trim())).map(x => ({ app: x.app, t: x.t.trim(), url: x.url.trim() }));
       try {
-        S.dir = await S.G.actualizarJSON(T.CFG.REPO_DATOS, 'directorio.json', d => { d.presentaciones = limpias; return d; }, `${S.persona.nombre.split(' ').slice(0, 2).join(' ')}: actualizó las ligas de presentaciones`);
-        aviso('Ligas guardadas'); pintaLado(); marcaNav('presentaciones');
+        S.dir = await S.G.actualizarJSON(T.CFG.REPO_DATOS, 'directorio.json', d => { d.ligas = limpias; delete d.presentaciones; return d; }, `${S.persona.nombre.split(' ').slice(0, 2).join(' ')}: actualizó las ligas de los apartados`);
+        aviso('Ligas guardadas'); pintaLado(); marcaNav('ligas');
       } catch (e) { aviso('No se guardó: ' + e.message, true); }
     };
   };
