@@ -147,13 +147,13 @@ a.act-item.para:hover{background:var(--fondo)}
 .app.compacta .lado .marca{flex-direction:column;gap:8px;padding-bottom:8px}
 .app.compacta .nav{justify-content:center;padding:9px 0}
 .nav.sub-admin{font-size:12px;color:var(--t3)}
-.liga{display:block;font-size:11.5px;color:var(--t2);text-decoration:none;margin:0 0 1px 30px;padding:2px 8px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.liga{flex:none;line-height:1.4;min-height:20px;display:block;font-size:11.5px;color:var(--t2);text-decoration:none;margin:0 0 1px 30px;padding:2px 8px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .liga:hover{background:var(--fondo);color:var(--azul)}
 .app.compacta .liga{display:none}
 .sep-grupo{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);font-weight:700;padding:8px 10px 2px 10px}
 .nav.en-grupo{padding-left:22px}
 .app.compacta .sep-grupo{display:none}
-.sub-acc{display:flex;flex-direction:column;gap:1px;margin:0 0 4px 30px}
+.sub-acc{flex:none;display:flex;flex-direction:column;gap:1px;margin:0 0 4px 30px}
 .sub-acc:empty{display:none}
 .sub-acc a,.sub-acc button,.sub-acc label{font-size:12px;color:var(--t2);text-decoration:none;border:0;background:none;text-align:left;padding:3px 8px;border-radius:6px;cursor:pointer}
 .sub-acc a:hover,.sub-acc button:hover,.sub-acc label:hover{background:var(--fondo);color:var(--azul)}
@@ -199,11 +199,11 @@ const NOMBRES_BASE = ["Alejandro Jimenez Correa", "Alejandro Serrano Herrera", "
 // Ligas externas de cada apartado (Excel, Power BI, presentaciones): se ven debajo del apartado al que pertenecen
 const LIGAS_BASE = [
   { app: 'reporte', t: 'Presentación quincenal', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/valeria_hernandez_cemex_com/_layouts/15/Doc.aspx?sourcedoc=%7B70735AD9-D1B8-400B-9911-387122D1CDA9%7D&file=Presentaci%25u00f3n%20Quincenal%20Construcci%25u00f3n.pptx&action=edit&mobileredirect=true' },
-  { app: 'seg-congruencia', t: 'Power BI · Iniciativas de Congruencia', url: 'https://app.powerbi.com/groups/me/reports/431a03ca-cd67-450f-b586-1db86f84c655/3f142c94adadd5e29c31?ctid=6ee19001-d0c4-45f8-af8b-ff00f16d07e1&experience=power-bi&clientSideAuth=0' },
-  { app: 'seg-congruencia', t: 'Presentación semanal de seguridad', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/josemiguel_lopezg_cemex_com/Documents/Cemex/16.%20Seguridad/Semanal%20Seguridad%20Construcci%C3%B3n.pptx?d=wc80616b328ad4fec9c4dd840aea0fb9f&csf=1&web=1&e=Ohsule' },
+  { app: 'seg-congruencia', t: 'Power BI', url: 'https://app.powerbi.com/groups/me/reports/431a03ca-cd67-450f-b586-1db86f84c655/3f142c94adadd5e29c31?ctid=6ee19001-d0c4-45f8-af8b-ff00f16d07e1&experience=power-bi&clientSideAuth=0' },
+  { app: 'seg-congruencia', t: 'Presentación semanal', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/josemiguel_lopezg_cemex_com/Documents/Cemex/16.%20Seguridad/Semanal%20Seguridad%20Construcci%C3%B3n.pptx?d=wc80616b328ad4fec9c4dd840aea0fb9f&csf=1&web=1&e=Ohsule' },
   { app: 'seg-agenda', t: 'Excel de responsables', url: 'https://cemex-my.sharepoint.com/:x:/p/josemiguel_lopezg/IQCC3ZeUc6r-TrPNeBrVK5xgATP8QBBVEaaoI5uRBcj-nlM?e=ELMoFT&CID=8de73b41-f67c-a069-c34d-ddc7dd1c6037' },
-  { app: 'seg-agenda', t: 'Power BI · Agenda de líderes', url: 'https://app.powerbi.com/groups/me/reports/3136be03-01c1-4c4a-a3d5-61d8ca09da53/77561c5b9f834f751d09?ctid=6ee19001-d0c4-45f8-af8b-ff00f16d07e1&experience=power-bi&clientSideAuth=0' },
-  { app: 'seg-agenda', t: 'Presentación semanal de seguridad', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/josemiguel_lopezg_cemex_com/Documents/Cemex/16.%20Seguridad/Semanal%20Seguridad%20Construcci%C3%B3n.pptx?d=wc80616b328ad4fec9c4dd840aea0fb9f&csf=1&web=1&e=Ohsule' }
+  { app: 'seg-agenda', t: 'Power BI', url: 'https://app.powerbi.com/groups/me/reports/3136be03-01c1-4c4a-a3d5-61d8ca09da53/77561c5b9f834f751d09?ctid=6ee19001-d0c4-45f8-af8b-ff00f16d07e1&experience=power-bi&clientSideAuth=0' },
+  { app: 'seg-agenda', t: 'Presentación semanal', url: 'https://cemex-my.sharepoint.com/:p:/r/personal/josemiguel_lopezg_cemex_com/Documents/Cemex/16.%20Seguridad/Semanal%20Seguridad%20Construcci%C3%B3n.pptx?d=wc80616b328ad4fec9c4dd840aea0fb9f&csf=1&web=1&e=Ohsule' }
 ];
 const ligas = () => (S.dir && Array.isArray(S.dir.ligas)) ? S.dir.ligas : LIGAS_BASE;
 const ligasDe = id => ligas().filter(x => x.app === id);
