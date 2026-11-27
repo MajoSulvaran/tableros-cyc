@@ -287,16 +287,18 @@
           background:none!important;border:0!important;border-bottom:3px solid transparent!important;color:#565b85!important}
         .switcher button:hover{color:#1414B8!important}
         .switcher button.active{color:#1414B8!important;border-bottom-color:#f22230!important;background:none!important}` },
-    cn: { t: 'Cuentas Nacionales', s: 'Reporte de resultados', antes: '.switcher', css: '' },
-    flota: { t: 'Mapeo de flota', s: 'Construcción · Planeación', antes: 'header.top', css: 'header.top .hid{display:none!important}.find .fd{display:none!important}nav.tabs{scrollbar-width:none}nav.tabs::-webkit-scrollbar{display:none}' }
+    cn: { t: 'Cuentas Nacionales', s: 'Reporte de resultados', antes: '.switcher', css: '.fantasma{display:none!important}.vistas{padding-top:6px!important}' },
+    flota: { t: 'Mapeo de flota', s: 'Construcción · Planeación', antes: 'header.top', css: 'header.top .hid{display:none!important}header.top{padding-top:4px!important;padding-bottom:0!important}.find .fd{display:none!important}nav.tabs{scrollbar-width:none}nav.tabs::-webkit-scrollbar{display:none}' }
   };
   function encabezado() {
     const e = ENC[APP]; if (!e || document.getElementById('cycHdr')) return;
     const st = document.createElement('style');
-    st.textContent = `#cycHdr{background:#1414B8;border-bottom:4px solid #f22230;color:#fff;display:flex;align-items:center;gap:12px;padding:9px 22px;font-family:Outfit,'Segoe UI',sans-serif}
-      #cycHdr .m{display:inline-flex;flex-direction:column;gap:4px}#cycHdr .m i{display:block;height:4px;border-radius:2px;background:#fff;width:30px}
-      #cycHdr .m i:nth-child(1){width:26px;background:#f22230}#cycHdr .m i:nth-child(3){width:20px;background:#a9acf2}
-      #cycHdr b{display:block;font-size:20px;font-weight:600;letter-spacing:.1px;line-height:1.2}#cycHdr small{display:block;font-size:11.5px;color:#d2d2f7}` + e.css;
+    // Encabezado delgado: título y subtítulo en un renglón, para dejar el espacio al contenido
+    st.textContent = `#cycHdr{background:#1414B8;border-bottom:3px solid #f22230;color:#fff;display:flex;align-items:center;gap:10px;padding:5px 18px;font-family:Outfit,'Segoe UI',sans-serif}
+      #cycHdr .m{display:inline-flex;flex-direction:column;gap:3px}#cycHdr .m i{display:block;height:3px;border-radius:2px;background:#fff;width:22px}
+      #cycHdr .m i:nth-child(1){width:19px;background:#f22230}#cycHdr .m i:nth-child(3){width:15px;background:#a9acf2}
+      #cycHdr div{display:flex;align-items:baseline;gap:10px}#cycHdr b{font-size:16px;font-weight:600;line-height:1.2}#cycHdr small{font-size:11px;color:#d2d2f7}
+      .switcher button{padding-top:6px!important;padding-bottom:5px!important;font-size:.82rem!important}` + e.css;
     document.head.appendChild(st);
     const h = document.createElement('div'); h.id = 'cycHdr';
     h.innerHTML = `<span class="m" aria-hidden="true"><i></i><i></i><i></i></span><div><b>${e.t}</b><small>${e.s}</small></div>`;
@@ -478,6 +480,11 @@
   function tituloSeguridad() {
     if (!TIT_SEG[APP]) return;
     const st = document.createElement('style'); st.textContent = '#gPer{overflow-y:auto;overflow-x:hidden}#lPer{flex:none;position:relative;background:#fff;padding-top:6px}.ud{min-height:46px}'; document.head.appendChild(st);
+    const st2 = document.createElement('style');
+    st2.textContent = '.hdr{padding-top:4px!important;padding-bottom:4px!important;border-bottom-width:3px!important;gap:10px!important}.hdr .ttl{font-size:16px!important}.hdr .sub{font-size:10.5px!important}.hdr .mark{transform:scale(.75)}'
+      + '.hdr{flex-wrap:nowrap!important}.hdr .brand{flex:none}.hdr .ttl{white-space:nowrap}.hdr .acts{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;min-width:0}.hdr .acts .sel{max-width:170px}.hdr .btn{white-space:nowrap}#chips,.chips{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none}.chip{white-space:nowrap}'
+      + '.hdr .btn,.hdr .sel,.hdr input{padding-top:3px!important;padding-bottom:3px!important;font-size:12px!important}.tabs .tab,.barra .tab,.vtabs button{padding-top:6px!important;padding-bottom:5px!important;font-size:12.5px!important}';
+    document.head.appendChild(st2);
     const t = document.querySelector('.hdr .ttl'), sb = document.querySelector('.hdr .sub');
     if (t) t.textContent = TIT_SEG[APP][0]; if (sb) sb.textContent = TIT_SEG[APP][1];
   }
